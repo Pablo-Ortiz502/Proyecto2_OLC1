@@ -1,14 +1,15 @@
 %lex
 %%
 
-[ \n\t\r]+                      /* skip horizontal whitespace */
+[ \t\r]+                      /* skip horizontal whitespace */
+\n                            return 'NEWLINE';
 "ingresar"                    return 'INGRESAR';
 "como"                        return 'COMO';
 "con valor"                   return 'CONVALOR';
 "Entero"                      return 'TIPO_ENTERO';
 "Cadena"                      return 'TIPO_CADENA';
 "Booleano"                    return 'TIPO_BOOL';  
-"Verdadero"                        return 'TRUE';
+"Verdadero"                   return 'TRUE';
 "Falso"                       return 'FALSE';
 "imprimir ln"                 return 'IMPRIMIRLN';    
 "imprimir"                    return 'IMPRIMIR';
@@ -44,7 +45,8 @@
 "("                           return '(';
 ")"                           return ')';
 "{"                           return '{';
-"}"                           return '}';    
+"}"                           return '}';
+"\n"                          return      
 <<EOF>>                       return 'EOF';
 
 . {
@@ -61,7 +63,7 @@
 %left '^' '%'
 
 %start programa
-%token INGRESAR COMO CONVALOR TIPO_ENTERO TIPO_CADENA TIPO_CHAR TIPO_BOOL TIPO_DECIMAL  IMPRIMIR ID NUMERO CADENA CHAR DECIMAL NEWLINE TRUE FALSE ASIG IF ELSE
+%token INGRESAR COMO CONVALOR TIPO_ENTERO TIPO_CADENA TIPO_CHAR TIPO_BOOL TIPO_DECIMAL  IMPRIMIR ID NUMERO CADENA CHAR DECIMAL NEWLINE TRUE FALSE ASIG IF ELSE NEWLINE
 
 %locations
 %error-verbose
@@ -99,53 +101,74 @@ sentencia
    
 
 separador
-    : ';'
+    :  NEWLINE
     ;
 
 
 instruccion
-    : TIPO_ENTERO ID 
+    : TIPO_ENTERO ID ';'
         { $$ = { tipo: 'DECLARACION2', id: $2, tipoDato: 'Entero', valor: 0 }; } 
-    | TIPO_ENTERO ID CONVALOR expresion 
+    | TIPO_ENTERO ID CONVALOR expresion ';'
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Entero', valor: $4 }; }
-    | TIPO_ENTERO ID ASIG expresion  
+    | TIPO_ENTERO ID ASIG expresion  ';'
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Entero', valor: $4 }; }
 
-    | TIPO_DECIMAL ID 
+    | TIPO_DECIMAL ID ';'
         { $$ = { tipo: 'DECLARACION2', id: $2, tipoDato: 'Decimal', valor: 0.0 }; } 
-    | TIPO_DECIMAL ID CONVALOR expresion 
+    | TIPO_DECIMAL ID CONVALOR expresion ';'
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Decimal', valor: $4 }; }
-    | TIPO_DECIMAL ID ASIG expresion  
+    | TIPO_DECIMAL ID ASIG expresion ';' 
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Decimal', valor: $4 }; }        
 
-    | TIPO_CADENA ID 
+    | TIPO_CADENA ID ';'
         { $$ = { tipo: 'DECLARACION2', id: $2, tipoDato: 'Cadena', valor: ""}; }
-    | TIPO_CADENA ID CONVALOR expresion 
+    | TIPO_CADENA ID CONVALOR expresion ';'
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Cadena', valor: $4}; }
-    | TIPO_CADENA ID ASIG expresion 
+    | TIPO_CADENA ID ASIG expresion ';'
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Cadena', valor: $4}; }
 
-    | TIPO_CHAR ID 
+    | TIPO_CHAR ID ';'
         { $$ = { tipo: 'DECLARACION2', id: $2, tipoDato: 'Caracter', valor: ''}; }
-    | TIPO_CHAR ID CONVALOR expresion 
+    | TIPO_CHAR ID CONVALOR expresion ';'
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Caracter', valor: $4}; }
-    | TIPO_CHAR ID ASIG expresion 
+    | TIPO_CHAR ID ASIG expresion ';'
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Caracter', valor: $4 }; }
 
 
-    | TIPO_BOOL ID 
+    | TIPO_BOOL ID ';'
         { $$ = { tipo: 'DECLARACION2', id: $2, tipoDato: 'Booleano', valor: true }; }
-    | TIPO_BOOL ID CONVALOR expresion 
+    | TIPO_BOOL ID CONVALOR expresion ';'
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Booleano', valor: $4 }; }
-    | TIPO_BOOL ID ASIG expresion 
+    | TIPO_BOOL ID ASIG expresion ';'
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Booleano', valor: $4 }; }
 
-    | ID ASIG expresion 
+    | ID ASIG expresion ';'
         { $$ = { tipo: 'ASIGNACION', id: $1, valor: $3 }; }
-    | IMPRIMIRLN expresion 
+    | IMPRIMIRLN expresion ';'
         { $$ = { tipo: 'IMPRIMIRLN', valor: $2 }; }            
-    | IMPRIMIR expresion 
+    | IMPRIMIR expresion ';'
         { $$ = { tipo: 'IMPRIMIR', valor: $2 }; }
+
+
+    | IF '(' expresionBol ')' '{' sentencias '}'
+    {
+        $$ = {
+            tipo: 'IF',
+            condicion: $3,
+            cuerpo: $6
+        };
+    }
+
+| IF '(' expresionBol ')' '{' sentencias '}' ELSE '{' sentencias '}'
+    {
+        $$ = {
+            tipo: 'IF_ELSE',
+            condicion: $3,
+            cuerpoVerdadero: $6,
+            cuerpoFalso: $10
+        };
+    }
+
     ;    
 
 expresion

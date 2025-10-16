@@ -1,3 +1,5 @@
+
+
 class Declaracion {
   constructor(id, tipoDato, valor) { this.id = id; this.tipoDato = tipoDato; this.valor = valor; }
   interpretar(entorno) {
@@ -79,4 +81,76 @@ class Decremento {
   }
 }
 
-module.exports = { Declaracion, Asignacion, Imprimir, Incremento, Decremento, Declaracion2,Imprimirln };
+class If {
+  constructor(condicion, cuerpo) {
+    this.condicion = condicion;
+    this.cuerpo = cuerpo;
+  }
+
+  interpretar(entorno) {
+    const {interpretar,convertirNodo} = require("./interpreter");
+    const cond = this.condicion.interpretar(entorno);
+    // Validación de tipo booleano
+    if (typeof cond !== "boolean") {
+      entorno.errores.push({
+        tipo: "Semántico",
+        descripcion: "La condición del if no es booleana"
+      });
+      return;
+    }
+
+    if (cond) {
+   for (const nodo of this.cuerpo || []) {
+    const instruccion = convertirNodo(nodo);
+    if (instruccion) {
+      instruccion.interpretar(entorno);
+    } else {
+      entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+    }
+   }
+    } 
+  }
+}
+
+class IfElse {
+  constructor(condicion, cuerpoVerdadero,cuerpoFalso) {
+    this.condicion = condicion;
+    this.cuerpoVerdadero = cuerpoVerdadero;
+    this.cuerpoFalso = cuerpoFalso;
+  }
+
+  interpretar(entorno) {
+    const {interpretar,convertirNodo} = require("./interpreter");
+    const cond = this.condicion.interpretar(entorno);
+    // Validación de tipo booleano
+    if (typeof cond !== "boolean") {
+      entorno.errores.push({
+        tipo: "Semántico",
+        descripcion: "La condición del if no es booleana"
+      });
+      return;
+    }
+
+    if (cond) { // este me marca le comportamiento 
+   for (const nodo of this.cuerpoVerdadero || []) {
+    const instruccion = convertirNodo(nodo);
+    if (instruccion) {
+      instruccion.interpretar(entorno);
+    } else {
+      entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+    }
+   }
+    }else{
+   for (const nodo of this.cuerpoFalso || []) {
+    const instruccion = convertirNodo(nodo);
+    if (instruccion) {
+      instruccion.interpretar(entorno);
+    } else {
+      entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+    }
+   }      
+    } 
+  }
+}
+
+module.exports = { Declaracion, Asignacion, Imprimir, Incremento, Decremento, Declaracion2,Imprimirln, If, IfElse };

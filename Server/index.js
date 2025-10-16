@@ -3,7 +3,7 @@ const cors = require("cors");
 const parser = require("./parser/parser");
 
 const generarAST = require("./src/astGenerator");
-const interpretar = require("./src/interpreter/interpreter");
+const {interpretar,convertirNodo} = require("./src/interpreter/interpreter");
 
 
 const app = express();

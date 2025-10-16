@@ -3,7 +3,7 @@ const {
   Declaracion,
   Declaracion2,
   Asignacion,
-  Imprimir,Imprimirln
+  Imprimir,Imprimirln,If,IfElse
 } = require("./Instrucciones");
 
 const {
@@ -69,8 +69,15 @@ function convertirNodo(nodo) {
     case "IGUAL":
       return new Igual(convertirNodo(nodo.izquierda),convertirNodo(nodo.derecha));
     case "NOIGUAL":
-      return new NoIgual(convertirNodo(nodo.izquierda),convertirNodo(nodo.derecha));  
+      return new NoIgual(convertirNodo(nodo.izquierda),convertirNodo(nodo.derecha));
       
+      
+    case "IF":
+      return new If(convertirNodo(nodo.condicion),nodo.cuerpo);
+
+    case "IF_ELSE":
+      return new IfElse(convertirNodo(nodo.condicion),nodo.cuerpoVerdadero,nodo.cuerpoFalso);      
+   
 
     default:
       return null;
@@ -100,4 +107,4 @@ function interpretar(nodosAST) {
   };
 }
 
-module.exports = interpretar;
+module.exports = {interpretar,convertirNodo};
