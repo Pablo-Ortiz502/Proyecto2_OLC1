@@ -1,7 +1,9 @@
 %lex
 %%
 
-[ \t\r]+                      /* skip horizontal whitespace */
+[ \t\r]+                     
+"/\\*"[^]*?"\\*/" 
+"//".* 
 \n                            return 'NEWLINE';
 "ingresar"                    return 'INGRESAR';
 "como"                        return 'COMO';
