@@ -6,6 +6,7 @@ export default function Simbolos({ data }) {
           <thead>
             <tr>
               <th>ID</th>
+              <th>Entorno</th>
               <th>Tipo</th>
               <th>Valor</th>
             </tr>
@@ -14,6 +15,7 @@ export default function Simbolos({ data }) {
             {data.map((s, i) => (
               <tr key={i}>
                 <td>{s.id}</td>
+                <td>{s.entorno}</td>
                 <td>{s.tipo}</td>
                 <td>{JSON.stringify(s.valor)}</td>
               </tr>

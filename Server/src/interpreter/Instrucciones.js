@@ -60,6 +60,10 @@ class Imprimirln {
 class Incremento {
   constructor(id) { this.id = id; }
   interpretar(entorno) {
+    if (entorno.obtener(this.id) == null) {
+      entorno.errores.push({ tipo:"Semántico", descripcion:`No se ha declarado la variable (${this.id})` });
+      return;
+    }
     const valorActual = entorno.obtener(this.id);
     if (typeof valorActual !== "number") {
       entorno.errores.push({ tipo:"Semántico", descripcion:`No se puede aplicar '++' a una variable no numérica (${this.id})` });
@@ -72,6 +76,10 @@ class Incremento {
 class Decremento {
   constructor(id) { this.id = id; }
   interpretar(entorno) {
+    if (entorno.obtener(this.id) == null) {
+      entorno.errores.push({ tipo:"Semántico", descripcion:`No se ha declarado la variable (${this.id})` });
+      return;
+    }    
     const valorActual = entorno.obtener(this.id);
     if (typeof valorActual !== "number") {
       entorno.errores.push({ tipo:"Semántico", descripcion:`No se puede aplicar '--' a una variable no numérica (${this.id})` });
@@ -82,15 +90,15 @@ class Decremento {
 }
 
 class If {
-  constructor(condicion, cuerpo) {
+  constructor(condicion, cuerpo,count) {
     this.condicion = condicion;
     this.cuerpo = cuerpo;
+    this.conunt = count;
   }
 
   interpretar(entorno) {
     const {interpretar,convertirNodo} = require("./interpreter");
     const cond = this.condicion.interpretar(entorno);
-    // Validación de tipo booleano
     if (typeof cond !== "boolean") {
       entorno.errores.push({
         tipo: "Semántico",
@@ -100,29 +108,32 @@ class If {
     }
 
     if (cond) {
-   for (const nodo of this.cuerpo || []) {
-    const instruccion = convertirNodo(nodo);
-    if (instruccion) {
-      instruccion.interpretar(entorno);
-    } else {
-      entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
-    }
-   }
+      const subEntrono = entorno.crearSubEntorno(`SI: ${this.conunt}`);
+      for (const nodo of this.cuerpo || []) {
+        const instruccion = convertirNodo(nodo);
+        if (instruccion) {
+          instruccion.interpretar(subEntrono);
+        } else {
+          entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+        }
+      }
     } 
   }
 }
 
 class IfElse {
-  constructor(condicion, cuerpoVerdadero,cuerpoFalso) {
+  constructor(condicion, cuerpoVerdadero,cuerpoFalso, count) {
     this.condicion = condicion;
     this.cuerpoVerdadero = cuerpoVerdadero;
     this.cuerpoFalso = cuerpoFalso;
+    this.count = count; 
   }
 
   interpretar(entorno) {
+    
     const {interpretar,convertirNodo} = require("./interpreter");
     const cond = this.condicion.interpretar(entorno);
-    // Validación de tipo booleano
+    const subEntrono = entorno.crearSubEntorno(`SI_DE LO CONTRARIO: ${this.count}`);
     if (typeof cond !== "boolean") {
       entorno.errores.push({
         tipo: "Semántico",
@@ -131,24 +142,24 @@ class IfElse {
       return;
     }
 
-    if (cond) { // este me marca le comportamiento 
-   for (const nodo of this.cuerpoVerdadero || []) {
-    const instruccion = convertirNodo(nodo);
-    if (instruccion) {
-      instruccion.interpretar(entorno);
-    } else {
-      entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
-    }
-   }
+    if (cond) {
+      for (const nodo of this.cuerpoVerdadero || []) {
+        const instruccion = convertirNodo(nodo);
+        if (instruccion) {
+          instruccion.interpretar(subEntrono);
+        } else {
+          entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+        }
+      }
     }else{
-   for (const nodo of this.cuerpoFalso || []) {
-    const instruccion = convertirNodo(nodo);
-    if (instruccion) {
-      instruccion.interpretar(entorno);
-    } else {
-      entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
-    }
-   }      
+      for (const nodo of this.cuerpoFalso || []) {
+        const instruccion = convertirNodo(nodo);
+        if (instruccion) {
+          instruccion.interpretar(subEntrono);
+        } else {
+          entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+        }
+      }
     } 
   }
 }

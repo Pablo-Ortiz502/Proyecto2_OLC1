@@ -42,6 +42,34 @@ function procesarNodo(nodo, nodos, conexiones) {
       conexiones.push(`${raiz} -> ${valNode}`);
       return raiz;
     }
+    case "IF_ELSE":{
+      const raiz = nuevoNodo("SI_DE LO CONTRARIO", nodos);
+      const condNode = procesarNodo(nodo.condicion, nodos, conexiones);
+      for(const n of nodo.cuerpoVerdadero){
+        const valNode = procesarNodo(n,nodos,conexiones);
+        conexiones.push(`${raiz} -> ${valNode}`);
+      }
+
+      for(const n of nodo.cuerpoFalso){
+        const valNode = procesarNodo(n,nodos,conexiones);
+        conexiones.push(`${raiz} -> ${valNode}`);
+      }
+      conexiones.push(`${raiz} -> ${condNode}`);
+      return raiz;
+
+    }
+
+    case "IF":{
+      const raiz = nuevoNodo("SI", nodos);
+      const condNode = procesarNodo(nodo.condicion, nodos, conexiones);
+      for(const n of nodo.cuerpo){
+        const valNode = procesarNodo(n,nodos,conexiones);
+        conexiones.push(`${raiz} -> ${valNode}`);
+      }
+      conexiones.push(`${raiz} -> ${condNode}`);
+      return raiz;
+    }
+
 
     case "ASIGNACION": {
       const raiz = nuevoNodo("ASIGNACION", nodos);

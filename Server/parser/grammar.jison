@@ -1,9 +1,6 @@
 %lex
 %%
-
-[ \t\r]+                     
-"/\\*"[^]*?"\\*/" 
-"//".* 
+[ \t\r]+                      /* skip horizontal whitespace */
 \n                            return 'NEWLINE';
 "ingresar"                    return 'INGRESAR';
 "como"                        return 'COMO';
@@ -18,16 +15,17 @@
 "Decimal"                     return 'TIPO_DECIMAL';
 "Caracter"                    return 'TIPO_CHAR';
 "si"                          return 'IF';
+"para"                        return 'FOR';  
 "de lo contrario"             return 'ELSE';   
 ([0-9]+\.[0-9]*|\.[0-9]+)     return 'DECIMAL';
 [0-9]+                        return 'NUMERO';
 \"[^"]*\"                     return 'CADENA';
 \'([^\\']|\\.)\'              return 'CHAR';
 [a-zA-Z_][a-zA-Z0-9_]*        return 'ID';
-"||"                          return 'OR';
-"&&"                          return 'AND';
+"||"                          return '||';
+"&&"                          return '&&';
 "!="                          return '!=';
-"!"                           return 'NOT';        
+"!"                           return '!';        
 ">="                          return '>=';  
 ">"                           return '>';
 "<="                          return '<=';  
@@ -58,8 +56,11 @@
 
 /lex
 
+%left '||'
+%left  '&&'
+%left '!' 
 %left '<' '>'
-%left '==' '!='
+%left '==' '!=' '<=' '>='
 %left '+' '-'
 %left '*' '/'
 %left '^' '%'
@@ -111,14 +112,14 @@ instruccion
     : TIPO_ENTERO ID ';'
         { $$ = { tipo: 'DECLARACION2', id: $2, tipoDato: 'Entero', valor: 0 }; } 
     | TIPO_ENTERO ID CONVALOR expresion ';'
-        { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Entero', valor: $4 }; }
+        { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Entero', valor: $4 };  }
     | TIPO_ENTERO ID ASIG expresion  ';'
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Entero', valor: $4 }; }
 
     | TIPO_DECIMAL ID ';'
         { $$ = { tipo: 'DECLARACION2', id: $2, tipoDato: 'Decimal', valor: 0.0 }; } 
     | TIPO_DECIMAL ID CONVALOR expresion ';'
-        { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Decimal', valor: $4 }; }
+        { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Decimal', valor: $4}; }
     | TIPO_DECIMAL ID ASIG expresion ';' 
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Decimal', valor: $4 }; }        
 
@@ -140,7 +141,7 @@ instruccion
     | TIPO_BOOL ID ';'
         { $$ = { tipo: 'DECLARACION2', id: $2, tipoDato: 'Booleano', valor: true }; }
     | TIPO_BOOL ID CONVALOR expresion ';'
-        { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Booleano', valor: $4 }; }
+        { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Booleano', valor: $4}; }
     | TIPO_BOOL ID ASIG expresion ';'
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Booleano', valor: $4 }; }
 
@@ -151,6 +152,10 @@ instruccion
     | IMPRIMIR expresion ';'
         { $$ = { tipo: 'IMPRIMIR', valor: $2 }; }
 
+    | ID INC ';'
+         { $$ = { tipo: 'INC', nombre: $1}; }
+    | ID DEC ';'
+         { $$ = { tipo: 'DEC', nombre: $1}; }  
 
     | IF '(' expresionBol ')' '{' sentencias '}'
     {
@@ -161,7 +166,7 @@ instruccion
         };
     }
 
-| IF '(' expresionBol ')' '{' sentencias '}' ELSE '{' sentencias '}'
+    | IF '(' expresionBol ')' '{' sentencias '}' ELSE '{' sentencias '}'
     {
         $$ = {
             tipo: 'IF_ELSE',
@@ -170,7 +175,6 @@ instruccion
             cuerpoFalso: $10
         };
     }
-
     ;    
 
 expresion
@@ -205,6 +209,17 @@ expresionBol
         { $$ = { tipo: 'IGUAL', izquierda: $1, derecha: $3 }; }
     | expresion '!=' expresion 
         { $$ = { tipo: 'NOIGUAL', izquierda: $1, derecha: $3 }; }
+    | expresion '>=' expresion 
+        { $$ = { tipo: 'MAYORIGUAL', izquierda: $1, derecha: $3 }; }
+    | expresion '<=' expresion 
+        { $$ = { tipo: 'MENORIGUAL', izquierda: $1, derecha: $3 }; }
+    | expresion '&&' expresion 
+        { $$ = { tipo: 'AND', izquierda: $1, derecha: $3 }; }
+    | expresion '||' expresion 
+        { $$ = { tipo: 'OR', izquierda: $1, derecha: $3 }; }   
+    | '!' ID
+        { $$ = { tipo: 'NOT', nombre: $2 }; }   
+                               
     | booleano
         { $$ = $1;}       
     ;
@@ -213,7 +228,7 @@ variable
     : NUMERO
         { $$ = { tipo: 'NUMERO', valor: Number($1) }; }
     | ID
-        { $$ = { tipo: 'ID', nombre: $1 }; }
+        { $$ = { tipo: 'ID', nombre: $1}; }
     | CADENA
         { $$ = { tipo: 'CADENA', valor: $1.slice(1, -1) }; }
     | DECIMAL

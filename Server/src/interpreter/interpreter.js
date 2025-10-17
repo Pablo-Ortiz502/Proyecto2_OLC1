@@ -3,7 +3,9 @@ const {
   Declaracion,
   Declaracion2,
   Asignacion,
-  Imprimir,Imprimirln,If,IfElse
+  Imprimir,Imprimirln,If,IfElse,
+  Incremento,
+  Decremento
 } = require("./Instrucciones");
 
 const {
@@ -15,8 +17,13 @@ const {
   Multiplicacion,
   Division,
   BOOL,Mayor,Menor,Igual,
-  NoIgual, Decimal,Exp,Mod,Caracter
+  NoIgual, Decimal,Exp,Mod,Caracter,Not,
+  MayorIgual,MenorIgual,And,Or
 } = require("./Expresiones");
+
+let s ="";
+let ifcount =0;
+let ifElsecount =0;
 
 function convertirNodo(nodo) {
   if (!nodo || typeof nodo !== "object") return null;
@@ -31,7 +38,15 @@ function convertirNodo(nodo) {
     case "IMPRIMIR":
       return new Imprimir(convertirNodo(nodo.valor));
     case "IMPRIMIRLN":
-      return new Imprimirln(convertirNodo(nodo.valor));      
+      return new Imprimirln(convertirNodo(nodo.valor)); 
+    case "INC":
+      return new Incremento(nodo.nombre);
+    case "DEC":
+      return new Decremento(nodo.nombre);
+    case "NOT":
+      return new Not(nodo.nombre);           
+
+     //faltan las demas
 
 
     case "NUMERO":
@@ -73,10 +88,12 @@ function convertirNodo(nodo) {
       
       
     case "IF":
-      return new If(convertirNodo(nodo.condicion),nodo.cuerpo);
+      ifcount++;
+      return new If(convertirNodo(nodo.condicion),nodo.cuerpo,ifcount);
 
     case "IF_ELSE":
-      return new IfElse(convertirNodo(nodo.condicion),nodo.cuerpoVerdadero,nodo.cuerpoFalso);      
+      ifElsecount++;
+      return new IfElse(convertirNodo(nodo.condicion),nodo.cuerpoVerdadero,nodo.cuerpoFalso,ifElsecount);      
    
 
     default:
@@ -85,6 +102,8 @@ function convertirNodo(nodo) {
 }
 
 function interpretar(nodosAST) {
+  ifcount =0;
+  ifElsecount =0;
   const entorno = new Entorno();
 
   for (const nodo of nodosAST || []) {
@@ -96,15 +115,47 @@ function interpretar(nodosAST) {
     }
   }
 
+  let res = [...entorno.variables.entries()].map(([id, val]) => ({
+    id,
+    tipo: val.tipo, 
+    valor: val.valor, entorno: val.entorno
+  }));
+  s = "";
+  s += entorno.salida;
+
+  for (const sub of entorno.hijos) {
+    entorno.errores = entorno.errores.concat(sub.errores);
+    s  += sub.salida;
+    res = res.concat(obtenerSimbolos(sub));
+  }
+
+
   return {
-    consola: entorno.salida,
+    consola: s,
     errores: entorno.errores,
-    simbolos: [...entorno.variables.entries()].map(([id, val]) => ({
-      id,
-      tipo: val.tipo,
-      valor: val.valor
-    }))
+    simbolos: res
   };
+}
+
+
+function obtenerSimbolos(entorno) {
+  let res = [...entorno.variables.entries()].map(([id, val]) => ({
+    id, 
+    tipo: 
+    val.tipo, 
+    valor: 
+    val.valor, 
+    entorno: val.entorno
+  }));
+
+  for (const sub of entorno.hijos) {
+    entorno.errores = entorno.errores.concat(sub.errores);
+    s += sub.salida;
+    res = res.concat(obtenerSimbolos(sub));
+    
+  }
+  
+  return res;
 }
 
 module.exports = {interpretar,convertirNodo};

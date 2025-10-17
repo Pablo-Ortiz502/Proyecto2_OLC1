@@ -90,6 +90,64 @@ class Menor {
   }
 }
 
+class MayorIgual {
+  constructor(izq, der) { this.izq = izq; this.der = der; }
+  interpretar(entorno) {
+    return this.izq.interpretar(entorno) === this.der.interpretar(entorno);
+  }
+}
+
+class MenorIgual {
+  constructor(izq, der) { this.izq = izq; this.der = der; }
+  interpretar(entorno) {
+    return this.izq.interpretar(entorno) === this.der.interpretar(entorno);
+  }
+}
+
+class Not {
+  constructor(der) { this.der = der; }
+  interpretar(entorno) {
+    const b = entorno.obtener(this.der);
+    if (b == null) {
+      entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha declarado la variable ${der}`});
+      return;
+    }
+    if (typeof b != "boolean"){
+      entorno.errores.push({ tipo: "Semántico", descripcion: `No se puede aplicar NOT a no booleanos`});
+      return;
+    }    
+    return !b;
+  }
+}
+
+class And {
+  constructor(izq, der) { this.izq = izq; this.der = der; }
+  interpretar(entorno) {
+    const a = this.izq.interpretar(entorno);
+    const b = this.der.interpretar(entorno);
+    if (typeof a != "boolean" || typeof b != "boolean") {
+      entorno.errores.push({ tipo: "Semántico", descripcion: "Solo se puede operar AND con booleanos" });
+      return;
+    }
+    return a && b;
+  }
+}
+
+class Or {
+  constructor(izq, der) { this.izq = izq; this.der = der; }
+  interpretar(entorno) {
+    const a = this.izq.interpretar(entorno);
+    const b = this.der.interpretar(entorno);
+    if (typeof a != "boolean" || typeof b != "boolean") {
+      entorno.errores.push({ tipo: "Semántico", descripcion: "Solo se puede operar OR con booleanos" });
+      return;
+    }
+    return a || b;
+  }
+}
+
+
+
 class Igual {
   constructor(izq, der) { this.izq = izq; this.der = der; }
   interpretar(entorno) {
@@ -118,6 +176,7 @@ class Division {
     const b = this.der.interpretar(entorno);
     if (b === 0) {
       entorno.errores.push({ tipo: "Semántico", descripcion: "División por cero" });
+      return;
     }
     return a / b;
   }
@@ -135,5 +194,6 @@ module.exports = {
   Division,
   BOOL,Mayor,Menor,
   Igual,NoIgual,Decimal,
-  Exp,Mod,Caracter
+  Exp,Mod,Caracter,Not,MayorIgual,MenorIgual,
+  And,Or
 };
