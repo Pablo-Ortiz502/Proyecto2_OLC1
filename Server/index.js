@@ -35,16 +35,12 @@ app.get("/health",(_req,res)=>{
 
 
 app.post("/interpretar", (req, res) => {
-  const codigo = req.body?.codigo ?? "";
+  const codigo = req.body?.codigo +"\n" ?? "";
 
   try {
-    // 1) Parse → AST
     const ast = parser.parse(codigo);
-
-    // 2) Interpretar
     const resultado = interpretar(Array.isArray(ast) ? ast : (ast ? [ast] : []));
 
-    // 3) AST → DOT (si falla no bloquea respuesta)
     let astDot = "";
     try {
       astDot = generarAST(ast);
@@ -52,7 +48,7 @@ app.post("/interpretar", (req, res) => {
       astDot = "";
     }
 
-    // 4) Normalizar/ordenar errores del intérprete
+
     const errores = (resultado.errores || []).map(e => ({
       tipo: e.tipo || "Semántico",
       descripcion: e.descripcion || String(e),
@@ -78,7 +74,7 @@ app.post("/interpretar", (req, res) => {
     });
 
   } catch (err) {
-    // Error de Jison (léxico/sintáctico)
+
     const detalle = {
       tipo: "Léxico/Sintáctico",
       descripcion: err?.message || "Error de análisis",
@@ -103,7 +99,6 @@ app.post("/interpretar", (req, res) => {
       detalle.tipo = "Léxico";
     }
 
-    // Se responde 200 para que el front muestre la tabla de errores
     res.status(200).json({
       consola: "",
       errores: [detalle],

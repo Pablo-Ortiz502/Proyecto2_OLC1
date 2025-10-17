@@ -93,14 +93,14 @@ class Menor {
 class MayorIgual {
   constructor(izq, der) { this.izq = izq; this.der = der; }
   interpretar(entorno) {
-    return this.izq.interpretar(entorno) === this.der.interpretar(entorno);
+    return this.izq.interpretar(entorno) >= this.der.interpretar(entorno);
   }
 }
 
 class MenorIgual {
   constructor(izq, der) { this.izq = izq; this.der = der; }
   interpretar(entorno) {
-    return this.izq.interpretar(entorno) === this.der.interpretar(entorno);
+    return this.izq.interpretar(entorno) <= this.der.interpretar(entorno);
   }
 }
 

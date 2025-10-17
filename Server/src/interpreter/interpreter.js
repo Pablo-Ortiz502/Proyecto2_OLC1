@@ -4,8 +4,7 @@ const {
   Declaracion2,
   Asignacion,
   Imprimir,Imprimirln,If,IfElse,
-  Incremento,
-  Decremento
+  Incremento,Decremento,If2,IfElse2
 } = require("./Instrucciones");
 
 const {
@@ -46,13 +45,13 @@ function convertirNodo(nodo) {
     case "NOT":
       return new Not(nodo.nombre);           
 
-     //faltan las demas
+     //faltan las demas y el if no hacpta (f)
 
 
     case "NUMERO":
       return new Numero(nodo.valor);
     case "CADENA":
-      return new Cadena(nodo.valor);
+      return new Cadena(nodo.valor);  
     case "ID":
       return new Identificador(nodo.nombre);
     case "BOOL":
@@ -81,19 +80,33 @@ function convertirNodo(nodo) {
       return new Mayor(convertirNodo(nodo.izquierda),convertirNodo(nodo.derecha));
     case "MENORQUE":
       return new Menor(convertirNodo(nodo.izquierda), convertirNodo(nodo.derecha));
+    case "MAYORIGUAL":
+      return new MayorIgual(convertirNodo(nodo.izquierda), convertirNodo(nodo.derecha));
+    case "MENORIGUAL":
+      return new MenorIgual(convertirNodo(nodo.izquierda), convertirNodo(nodo.derecha));            
     case "IGUAL":
       return new Igual(convertirNodo(nodo.izquierda),convertirNodo(nodo.derecha));
     case "NOIGUAL":
       return new NoIgual(convertirNodo(nodo.izquierda),convertirNodo(nodo.derecha));
+    case "AND":
+      return new And(convertirNodo(nodo.izquierda),convertirNodo(nodo.derecha));
+    case "OR":
+      return new Or(convertirNodo(nodo.izquierda),convertirNodo(nodo.derecha));  
       
       
     case "IF":
       ifcount++;
       return new If(convertirNodo(nodo.condicion),nodo.cuerpo,ifcount);
+    case "IF2":
+      ifcount++;
+      return new If2(nodo.condicion,nodo.cuerpo,ifcount);  
 
     case "IF_ELSE":
       ifElsecount++;
-      return new IfElse(convertirNodo(nodo.condicion),nodo.cuerpoVerdadero,nodo.cuerpoFalso,ifElsecount);      
+      return new IfElse(convertirNodo(nodo.condicion),nodo.cuerpoVerdadero,nodo.cuerpoFalso,ifElsecount);
+    case "IF_ELSE2":
+      ifElsecount++;
+      return new IfElse2(nodo.condicion,nodo.cuerpoVerdadero,nodo.cuerpoFalso,ifElsecount);             
    
 
     default:
@@ -128,7 +141,6 @@ function interpretar(nodosAST) {
     s  += sub.salida;
     res = res.concat(obtenerSimbolos(sub));
   }
-
 
   return {
     consola: s,

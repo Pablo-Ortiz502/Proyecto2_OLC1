@@ -121,6 +121,89 @@ class If {
   }
 }
 
+class If2 {
+  constructor(condicion, cuerpo,count) {
+    this.condicion = condicion;
+    this.cuerpo = cuerpo;
+    this.conunt = count;
+  }
+
+  interpretar(entorno) {
+    const {interpretar,convertirNodo} = require("./interpreter");
+    const cond = entorno.obtener(this.condicion);
+    if (cond == null){
+      entorno.errores.push({ tipo: "Semantico", descripcion: `Variable ${this.condicion} no declarada` });
+      return;
+    }
+    if (typeof cond !== "boolean") {
+      entorno.errores.push({
+        tipo: "Semántico",
+        descripcion: "La condición del if no es booleana"
+      });
+      return;
+    }
+
+    if (cond) {
+      const subEntrono = entorno.crearSubEntorno(`SI: ${this.conunt}`);
+      for (const nodo of this.cuerpo || []) {
+        const instruccion = convertirNodo(nodo);
+        if (instruccion) {
+          instruccion.interpretar(subEntrono);
+        } else {
+          entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+        }
+      }
+    } 
+  }
+}
+
+class IfElse2 {
+  constructor(condicion, cuerpoVerdadero,cuerpoFalso, count) {
+    this.condicion = condicion;
+    this.cuerpoVerdadero = cuerpoVerdadero;
+    this.cuerpoFalso = cuerpoFalso;
+    this.count = count; 
+  }
+
+  interpretar(entorno) {
+    
+    const {interpretar,convertirNodo} = require("./interpreter");
+    const cond = entorno.obtener(this.condicion);
+    const subEntrono = entorno.crearSubEntorno(`SI_DE LO CONTRARIO: ${this.count}`);
+    if (cond == null){
+      entorno.errores.push({ tipo: "Semantico", descripcion: `Variable ${this.condicion} no declarada` });
+      return;
+    }
+    if (typeof cond !== "boolean") {
+      entorno.errores.push({
+        tipo: "Semántico",
+        descripcion: "La condición del if no es booleana"
+      });
+      return;
+    }
+
+    if (cond) {
+      for (const nodo of this.cuerpoVerdadero || []) {
+        const instruccion = convertirNodo(nodo);
+        if (instruccion) {
+          instruccion.interpretar(subEntrono);
+        } else {
+          entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+        }
+      }
+    }else{
+      for (const nodo of this.cuerpoFalso || []) {
+        const instruccion = convertirNodo(nodo);
+        if (instruccion) {
+          instruccion.interpretar(subEntrono);
+        } else {
+          entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+        }
+      }
+    } 
+  }
+}
+
 class IfElse {
   constructor(condicion, cuerpoVerdadero,cuerpoFalso, count) {
     this.condicion = condicion;
@@ -164,4 +247,4 @@ class IfElse {
   }
 }
 
-module.exports = { Declaracion, Asignacion, Imprimir, Incremento, Decremento, Declaracion2,Imprimirln, If, IfElse };
+module.exports = { Declaracion, Asignacion, Imprimir, Incremento, Decremento, Declaracion2,Imprimirln, If, IfElse,If2,IfElse2 };

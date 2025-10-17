@@ -109,13 +109,83 @@ separador
 
 
 instruccion
-    : TIPO_ENTERO ID ';'
-        { $$ = { tipo: 'DECLARACION2', id: $2, tipoDato: 'Entero', valor: 0 }; } 
-    | TIPO_ENTERO ID CONVALOR expresion ';'
-        { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Entero', valor: $4 };  }
-    | TIPO_ENTERO ID ASIG expresion  ';'
-        { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Entero', valor: $4 }; }
+    : declaraciones
+    | asignaciones
+    | IMPRIMIRLN expresion ';'
+        { $$ = { tipo: 'IMPRIMIRLN', valor: $2 }; }            
+    | IMPRIMIR expresion ';'
+        { $$ = { tipo: 'IMPRIMIR', valor: $2 }; }
 
+    | incdec 
+
+    | IF '(' expresionBol ')' '{' sentencias '}'
+    {
+        $$ = {
+            tipo: 'IF',
+            condicion: $3,
+            cuerpo: $6
+        };
+    }
+    | IF '(' ID ')' '{' sentencias '}'
+    {
+        $$ = {
+            tipo: 'IF2',
+            condicion: $3,
+            cuerpo: $6
+        };
+    }
+
+    | IF '(' expresionBol ')' '{' sentencias '}' ELSE '{' sentencias '}'
+    {
+        $$ = {
+            tipo: 'IF_ELSE',
+            condicion: $3,
+            cuerpoVerdadero: $6,
+            cuerpoFalso: $10
+        };
+    }
+    | IF '(' ID ')' '{' sentencias '}' ELSE '{' sentencias '}'
+    {
+        $$ = {
+            tipo: 'IF_ELSE2',
+            condicion: $3,
+            cuerpoVerdadero: $6,
+            cuerpoFalso: $10
+        };
+    }
+    |FOR '(' decNum ';' expresionBol ';' incdec ')' '{' sentencias '}'
+        $$ = {
+            tipo: 'FOR1',
+            declaracion: $3,
+            condicion: $5,
+            act: $7,
+            cuerpo: $10
+        };
+    |FOR '(' asignaciones ';' expresionBol ';' incdec ')' '{' sentencias '}'
+        $$ = {
+            tipo: 'FOR1',
+            asignacion: $3,
+            condicion: $5,
+            act: $7,
+            cuerpo: $10
+        };        
+
+    ;
+
+incdec
+    : ID INC ';'
+         { $$ = { tipo: 'INC', nombre: $1}; }
+    | ID DEC ';'
+         { $$ = { tipo: 'DEC', nombre: $1}; }     
+    ;
+
+asignaciones
+    :ID ASIG expresion ';'
+        { $$ = { tipo: 'ASIGNACION', id: $1, valor: $3 }; }
+    ;
+
+declaraciones
+    :decNum
     | TIPO_DECIMAL ID ';'
         { $$ = { tipo: 'DECLARACION2', id: $2, tipoDato: 'Decimal', valor: 0.0 }; } 
     | TIPO_DECIMAL ID CONVALOR expresion ';'
@@ -143,40 +213,17 @@ instruccion
     | TIPO_BOOL ID CONVALOR expresion ';'
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Booleano', valor: $4}; }
     | TIPO_BOOL ID ASIG expresion ';'
-        { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Booleano', valor: $4 }; }
+        { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Booleano', valor: $4 }; }            
+    ;
 
-    | ID ASIG expresion ';'
-        { $$ = { tipo: 'ASIGNACION', id: $1, valor: $3 }; }
-    | IMPRIMIRLN expresion ';'
-        { $$ = { tipo: 'IMPRIMIRLN', valor: $2 }; }            
-    | IMPRIMIR expresion ';'
-        { $$ = { tipo: 'IMPRIMIR', valor: $2 }; }
-
-    | ID INC ';'
-         { $$ = { tipo: 'INC', nombre: $1}; }
-    | ID DEC ';'
-         { $$ = { tipo: 'DEC', nombre: $1}; }  
-
-    | IF '(' expresionBol ')' '{' sentencias '}'
-    {
-        $$ = {
-            tipo: 'IF',
-            condicion: $3,
-            cuerpo: $6
-        };
-    }
-
-    | IF '(' expresionBol ')' '{' sentencias '}' ELSE '{' sentencias '}'
-    {
-        $$ = {
-            tipo: 'IF_ELSE',
-            condicion: $3,
-            cuerpoVerdadero: $6,
-            cuerpoFalso: $10
-        };
-    }
-    ;    
-
+decNum
+    :TIPO_ENTERO ID ';'
+        { $$ = { tipo: 'DECLARACION2', id: $2, tipoDato: 'Entero', valor: 0 }; } 
+    | TIPO_ENTERO ID CONVALOR expresion ';'
+        { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Entero', valor: $4 };  }
+    | TIPO_ENTERO ID ASIG expresion  ';'
+        { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Entero', valor: $4 }; }
+    ;
 expresion
     : expresion '+' expresion 
         { $$ = { tipo: 'SUMA', izquierda: $1, derecha: $3 }; }
