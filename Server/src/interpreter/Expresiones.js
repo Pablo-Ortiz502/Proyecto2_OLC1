@@ -60,6 +60,8 @@ class Suma {
   interpretar(entorno) {
     const l = this.izq.interpretar(entorno);
     const r = this.der.interpretar(entorno);
+    if (r == null) {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha declarado la variable ${this.der.nombre}`}); return;}
+    if (l == null) {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha declarado la variable ${this.izq.nombre}`}); return;}
     if (typeof l === "string" || typeof r === "string" && (l.length != 1 || r.length != 1)) {return String(l)+String(r)}
     else if (typeof l === "boolean" && typeof r == "boolean"){ entorno.errores.push({ tipo: "Semántico", descripcion: "No se admite la suma entre booleanos" }); return;}
     else if (typeof l === "string" && typeof r == "boolean" ) {entorno.errores.push({ tipo: "Semántico", descripcion: "No se admite la suma entre char y booleano" }); return;}
@@ -72,35 +74,50 @@ class Suma {
 class Resta {
   constructor(izq, der) { this.izq = izq; this.der = der; }
   interpretar(entorno) {
-    return this.izq.interpretar(entorno) - this.der.interpretar(entorno);
+    let d = this.der.interpretar(entorno);
+    let i = this.izq.interpretar(entorno);
+
+    return i - d;
   }
 }
 
 class Mayor {
   constructor(izq, der) { this.izq = izq; this.der = der; }
   interpretar(entorno) {
-    return this.izq.interpretar(entorno) > this.der.interpretar(entorno);
+    let d = this.der.interpretar(entorno);
+    let i = this.izq.interpretar(entorno);
+
+    return i > d;
   }
 }
 
 class Menor {
   constructor(izq, der) { this.izq = izq; this.der = der; }
   interpretar(entorno) {
-    return this.izq.interpretar(entorno) < this.der.interpretar(entorno);
+    let d = this.der.interpretar(entorno);
+    let i = this.izq.interpretar(entorno);
+
+    return i < d;
   }
 }
 
 class MayorIgual {
   constructor(izq, der) { this.izq = izq; this.der = der; }
   interpretar(entorno) {
-    return this.izq.interpretar(entorno) >= this.der.interpretar(entorno);
+    let d = this.der.interpretar(entorno);
+    let i = this.izq.interpretar(entorno);
+
+    return i >= d;
   }
 }
 
 class MenorIgual {
   constructor(izq, der) { this.izq = izq; this.der = der; }
   interpretar(entorno) {
-    return this.izq.interpretar(entorno) <= this.der.interpretar(entorno);
+    let d = this.der.interpretar(entorno);
+    let i = this.izq.interpretar(entorno);
+
+    return i <= d;
   }
 }
 
@@ -138,6 +155,7 @@ class Or {
   interpretar(entorno) {
     const a = this.izq.interpretar(entorno);
     const b = this.der.interpretar(entorno);
+
     if (typeof a != "boolean" || typeof b != "boolean") {
       entorno.errores.push({ tipo: "Semántico", descripcion: "Solo se puede operar OR con booleanos" });
       return;
@@ -151,21 +169,31 @@ class Or {
 class Igual {
   constructor(izq, der) { this.izq = izq; this.der = der; }
   interpretar(entorno) {
-    return this.izq.interpretar(entorno) === this.der.interpretar(entorno);
+    let d = this.der.interpretar(entorno);
+    let i = this.izq.interpretar(entorno);
+
+    return i = d;
   }
 }
 
 class NoIgual {
   constructor(izq, der) { this.izq = izq; this.der = der; }
   interpretar(entorno) {
-    return this.izq.interpretar(entorno) != this.der.interpretar(entorno);
+    let d = this.der.interpretar(entorno);
+    let i = this.izq.interpretar(entorno);
+
+
+    return i != d;
   }
 }
 
 class Multiplicacion {
   constructor(izq, der) { this.izq = izq; this.der = der; }
   interpretar(entorno) {
-    return this.izq.interpretar(entorno) * this.der.interpretar(entorno);
+    let d = this.der.interpretar(entorno);
+    let i = this.izq.interpretar(entorno);
+
+    return i * d;
   }
 }
 
@@ -173,11 +201,8 @@ class Division {
   constructor(izq, der) { this.izq = izq; this.der = der; }
   interpretar(entorno) {
     const a = this.izq.interpretar(entorno);
-    const b = this.der.interpretar(entorno);
-    if (b === 0) {
-      entorno.errores.push({ tipo: "Semántico", descripcion: "División por cero" });
-      return;
-    }
+    const b = this.der.interpretar(entorno);     
+    if (b === 0) {entorno.errores.push({ tipo: "Semántico", descripcion: "División por cero" }); return;}
     return a / b;
   }
 }

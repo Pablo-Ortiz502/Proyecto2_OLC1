@@ -45,8 +45,7 @@
 "("                           return '(';
 ")"                           return ')';
 "{"                           return '{';
-"}"                           return '}';
-"\n"                          return      
+"}"                           return '}';     
 <<EOF>>                       return 'EOF';
 
 . {
@@ -66,7 +65,7 @@
 %left '^' '%'
 
 %start programa
-%token INGRESAR COMO CONVALOR TIPO_ENTERO TIPO_CADENA TIPO_CHAR TIPO_BOOL TIPO_DECIMAL  IMPRIMIR ID NUMERO CADENA CHAR DECIMAL NEWLINE TRUE FALSE ASIG IF ELSE NEWLINE
+%token INGRESAR COMO CONVALOR TIPO_ENTERO TIPO_CADENA TIPO_CHAR TIPO_BOOL TIPO_DECIMAL  IMPRIMIR ID NUMERO CADENA CHAR DECIMAL NEWLINE TRUE FALSE ASIG IF ELSE NEWLINE FOR
 
 %locations
 %error-verbose
@@ -109,14 +108,14 @@ separador
 
 
 instruccion
-    : declaraciones
-    | asignaciones
+    : declaraciones ';'
+    | asignaciones ';'
     | IMPRIMIRLN expresion ';'
         { $$ = { tipo: 'IMPRIMIRLN', valor: $2 }; }            
     | IMPRIMIR expresion ';'
         { $$ = { tipo: 'IMPRIMIR', valor: $2 }; }
 
-    | incdec 
+    | incdec ';'
 
     | IF '(' expresionBol ')' '{' sentencias '}'
     {
@@ -153,7 +152,8 @@ instruccion
             cuerpoFalso: $10
         };
     }
-    |FOR '(' decNum ';' expresionBol ';' incdec ')' '{' sentencias '}'
+    |FOR '(' decNum ';' expresionBol ';' incdec')' '{' sentencias '}'
+    {
         $$ = {
             tipo: 'FOR1',
             declaracion: $3,
@@ -161,67 +161,70 @@ instruccion
             act: $7,
             cuerpo: $10
         };
+    }
+
     |FOR '(' asignaciones ';' expresionBol ';' incdec ')' '{' sentencias '}'
+    {
         $$ = {
-            tipo: 'FOR1',
+            tipo: 'FOR2',
             asignacion: $3,
             condicion: $5,
             act: $7,
             cuerpo: $10
         };        
-
+    }
     ;
 
 incdec
-    : ID INC ';'
+    : ID INC 
          { $$ = { tipo: 'INC', nombre: $1}; }
-    | ID DEC ';'
-         { $$ = { tipo: 'DEC', nombre: $1}; }     
+    | ID DEC
+         { $$ = { tipo: 'DEC', nombre: $1}; }
     ;
 
 asignaciones
-    :ID ASIG expresion ';'
+    :ID ASIG expresion 
         { $$ = { tipo: 'ASIGNACION', id: $1, valor: $3 }; }
     ;
 
 declaraciones
     :decNum
-    | TIPO_DECIMAL ID ';'
+    | TIPO_DECIMAL ID 
         { $$ = { tipo: 'DECLARACION2', id: $2, tipoDato: 'Decimal', valor: 0.0 }; } 
-    | TIPO_DECIMAL ID CONVALOR expresion ';'
+    | TIPO_DECIMAL ID CONVALOR expresion 
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Decimal', valor: $4}; }
-    | TIPO_DECIMAL ID ASIG expresion ';' 
+    | TIPO_DECIMAL ID ASIG expresion 
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Decimal', valor: $4 }; }        
 
-    | TIPO_CADENA ID ';'
+    | TIPO_CADENA ID 
         { $$ = { tipo: 'DECLARACION2', id: $2, tipoDato: 'Cadena', valor: ""}; }
-    | TIPO_CADENA ID CONVALOR expresion ';'
+    | TIPO_CADENA ID CONVALOR expresion 
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Cadena', valor: $4}; }
-    | TIPO_CADENA ID ASIG expresion ';'
+    | TIPO_CADENA ID ASIG expresion 
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Cadena', valor: $4}; }
 
-    | TIPO_CHAR ID ';'
+    | TIPO_CHAR ID 
         { $$ = { tipo: 'DECLARACION2', id: $2, tipoDato: 'Caracter', valor: ''}; }
-    | TIPO_CHAR ID CONVALOR expresion ';'
+    | TIPO_CHAR ID CONVALOR expresion 
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Caracter', valor: $4}; }
-    | TIPO_CHAR ID ASIG expresion ';'
+    | TIPO_CHAR ID ASIG expresion 
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Caracter', valor: $4 }; }
 
 
-    | TIPO_BOOL ID ';'
+    | TIPO_BOOL ID 
         { $$ = { tipo: 'DECLARACION2', id: $2, tipoDato: 'Booleano', valor: true }; }
-    | TIPO_BOOL ID CONVALOR expresion ';'
+    | TIPO_BOOL ID CONVALOR expresion 
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Booleano', valor: $4}; }
-    | TIPO_BOOL ID ASIG expresion ';'
+    | TIPO_BOOL ID ASIG expresion 
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Booleano', valor: $4 }; }            
     ;
 
 decNum
-    :TIPO_ENTERO ID ';'
+    :TIPO_ENTERO ID 
         { $$ = { tipo: 'DECLARACION2', id: $2, tipoDato: 'Entero', valor: 0 }; } 
-    | TIPO_ENTERO ID CONVALOR expresion ';'
+    | TIPO_ENTERO ID CONVALOR expresion 
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Entero', valor: $4 };  }
-    | TIPO_ENTERO ID ASIG expresion  ';'
+    | TIPO_ENTERO ID ASIG expresion  
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Entero', valor: $4 }; }
     ;
 expresion
@@ -241,6 +244,7 @@ expresion
         { $$ = $1;}    
     | variable 
         { $$ = $1;}
+    | incdec    
     ;
 
 

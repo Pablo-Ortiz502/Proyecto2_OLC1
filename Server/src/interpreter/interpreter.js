@@ -4,7 +4,7 @@ const {
   Declaracion2,
   Asignacion,
   Imprimir,Imprimirln,If,IfElse,
-  Incremento,Decremento,If2,IfElse2
+  Incremento,Decremento,If2,IfElse2,For1,For2
 } = require("./Instrucciones");
 
 const {
@@ -23,6 +23,7 @@ const {
 let s ="";
 let ifcount =0;
 let ifElsecount =0;
+let forCount =0;
 
 function convertirNodo(nodo) {
   if (!nodo || typeof nodo !== "object") return null;
@@ -106,7 +107,18 @@ function convertirNodo(nodo) {
       return new IfElse(convertirNodo(nodo.condicion),nodo.cuerpoVerdadero,nodo.cuerpoFalso,ifElsecount);
     case "IF_ELSE2":
       ifElsecount++;
-      return new IfElse2(nodo.condicion,nodo.cuerpoVerdadero,nodo.cuerpoFalso,ifElsecount);             
+      return new IfElse2(nodo.condicion,nodo.cuerpoVerdadero,nodo.cuerpoFalso,ifElsecount);
+      
+    case "FOR1":
+      forCount++;
+      console.log(nodo);
+      return new For1(convertirNodo(nodo.declaracion),convertirNodo(nodo.condicion) ,convertirNodo(nodo.act), 
+                      nodo.cuerpo,forCount, nodo.condicion.derecha, nodo.condicion.izquierda,nodo.condicion.tipo,nodo.act);
+    case "FOR2":
+      forCount++;
+      console.log(nodo.act.tipo);
+      return new For2(convertirNodo(nodo.asignacion),convertirNodo(nodo.condicion) ,convertirNodo(nodo.act), 
+                      nodo.cuerpo,forCount, nodo.condicion.derecha, nodo.condicion.izquierda,nodo.condicion.tipo,nodo.act.tipo);                    
    
 
     default:
@@ -117,6 +129,7 @@ function convertirNodo(nodo) {
 function interpretar(nodosAST) {
   ifcount =0;
   ifElsecount =0;
+  forCount =0;
   const entorno = new Entorno();
 
   for (const nodo of nodosAST || []) {

@@ -1,5 +1,3 @@
-
-
 class Declaracion {
   constructor(id, tipoDato, valor) { this.id = id; this.tipoDato = tipoDato; this.valor = valor; }
   interpretar(entorno) {
@@ -70,6 +68,7 @@ class Incremento {
       return;
     }
     entorno.asignar(this.id, valorActual + 1);
+    return valorActual + 1;
   }
 }
 
@@ -86,6 +85,7 @@ class Decremento {
       return;
     }
     entorno.asignar(this.id, valorActual - 1);
+    return valorActual - 1;
   }
 }
 
@@ -120,6 +120,223 @@ class If {
     } 
   }
 }
+
+
+class For1 {
+  constructor(declaracion,condicion,act, cuerpo,count, der,izq,tip,actTipo) {
+    this.izq = izq;
+    this.condicion = condicion;
+    this.der = der;
+    this.tip = tip;
+    this.cuerpo = cuerpo;
+    this.conunt = count;
+    this.declaracion = declaracion;
+    this.act = act;
+    this.actTipo = actTipo.tipo;
+  }
+
+  interpretar(entorno) {
+    const {interpretar,convertirNodo} = require("./interpreter");
+    const subEntrono = entorno.crearSubEntorno(`Para: ${this.conunt}`);
+    this.declaracion.interpretar(subEntrono);
+    this.condicion.interpretar(subEntrono);
+    let o = convertirNodo(this.izq).interpretar(subEntrono);
+    let k = convertirNodo(this.der).interpretar(subEntrono);
+
+    if (k == null) {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha declarado la variable ${this.der.nombre} en  [${entorno.nombre}]`}); return;}
+    if (o == null) {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha declarado la variable ${this.izq.nombre} en  [${entorno.nombre}]`}); return;}
+
+    if (this.tip =="MENORQUE" && this.actTipo == "INC"){
+      for (let i = o;i<k;i++){
+        
+        for (const nodo of this.cuerpo || []) {
+          const instruccion = convertirNodo(nodo);
+          if (instruccion) {
+            instruccion.interpretar(subEntrono); 
+          } else {
+            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          }
+        }
+        this.act.interpretar(subEntrono); 
+      }
+    }
+    else if (this.tip =="MAYORQUE" && this.actTipo == "DEC"){
+      for (let i = o;i>k;i--){
+        
+        for (const nodo of this.cuerpo || []) {
+          const instruccion = convertirNodo(nodo);
+          if (instruccion) {
+            instruccion.interpretar(subEntrono);
+          } else {
+            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          }
+        }
+        this.act.interpretar(subEntrono); 
+      }
+    } else if (this.tip =="MENORIGUAL" && this.actTipo == "INC"){
+      console.log(this.ini);
+      for (let i = o;i<=k;i++){
+        for (const nodo of this.cuerpo || []) {
+          const instruccion = convertirNodo(nodo);
+          if (instruccion) {
+            instruccion.interpretar(subEntrono);
+          } else {
+            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          }
+        }
+        this.act.interpretar(subEntrono); 
+      }
+    } else if (this.tip =="MAYORIGUAL" && this.actTipo == "DEC"){
+      for (let i = o;i>=k;i--){
+        for (const nodo of this.cuerpo || []) {
+          const instruccion = convertirNodo(nodo);
+          if (instruccion) {
+            instruccion.interpretar(subEntrono);
+          } else {
+            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          }
+        }
+        this.act.interpretar(subEntrono); 
+      }
+    } else if (this.tip =="IGUAL" && this.actTipo == "INC"){
+      for (let i = o;i==k;i++){
+        
+        for (const nodo of this.cuerpo || []) {
+          const instruccion = convertirNodo(nodo);
+          if (instruccion) {
+            instruccion.interpretar(subEntrono);
+          } else {
+            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          }
+        }
+        this.act.interpretar(subEntrono); 
+      }
+    } else if (this.tip =="MENORQUE" && this.actTipo == "DEC"){
+      for (let i = o;i==k;i--){
+        
+        for (const nodo of this.cuerpo || []) {
+          const instruccion = convertirNodo(nodo);
+          if (instruccion) {
+            instruccion.interpretar(subEntrono);
+          } else {
+            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          }
+        }
+        this.act.interpretar(subEntrono); 
+      }
+    } 
+
+  }
+}
+
+
+class For2 {
+  constructor(asignacion,condicion,act, cuerpo,count, der,izq,tip,actTipo) {
+    this.izq = izq;
+    this.condicion = condicion;
+    this.der = der;
+    this.tip = tip;
+    this.cuerpo = cuerpo;
+    this.conunt = count;
+    this.asignacion = asignacion;
+    this.act = act;
+    this.actTipo = actTipo;
+  }
+
+  interpretar(entorno) {
+    const {interpretar,convertirNodo} = require("./interpreter");
+    const subEntrono = entorno.crearSubEntorno(`Para: ${this.conunt}`);
+    this.asignacion.interpretar(subEntrono);
+    this.condicion.interpretar(subEntrono);
+    let o = convertirNodo(this.izq).interpretar(subEntrono);
+    let k = convertirNodo(this.der).interpretar(subEntrono);
+    if (k == null) {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha declarado la variable ${this.der.nombre} en  [${entorno.nombre}]`}); return;}
+    if (o == null) {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha declarado la variable ${this.izq.nombre} en  [${entorno.nombre}]`}); return;}
+
+    if (this.tip =="MENORQUE" && this.actTipo == "INC"){
+      for (let i = o;i<k;i++){
+        
+        for (const nodo of this.cuerpo || []) {
+          const instruccion = convertirNodo(nodo);
+          if (instruccion) {
+            instruccion.interpretar(subEntrono);
+          } else {
+            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          }
+        }
+        this.act.interpretar(subEntrono); 
+      }
+    }
+    else if (this.tip =="MAYORQUE" && this.actTipo == "DEC"){
+      for (let i = o;i>k;i--){
+        
+        for (const nodo of this.cuerpo || []) {
+          const instruccion = convertirNodo(nodo);
+          if (instruccion) {
+            instruccion.interpretar(subEntrono);
+          } else {
+            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          }
+        }
+        this.act.interpretar(subEntrono); 
+      }
+    } else if (this.tip =="MENORIGUAL" && this.actTipo == "INC"){
+      for (let i = o;i<=k;i++){
+        
+        for (const nodo of this.cuerpo || []) {
+          const instruccion = convertirNodo(nodo);
+          if (instruccion) {
+            instruccion.interpretar(subEntrono);
+          } else {
+            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          }
+        }
+        this.act.interpretar(subEntrono); 
+      }
+    } else if (this.tip =="MAYORIGUAL" && this.actTipo == "DEC"){
+      for (let i = o;i>=k;i--){
+        
+        for (const nodo of this.cuerpo || []) {
+          const instruccion = convertirNodo(nodo);
+          if (instruccion) {
+            instruccion.interpretar(subEntrono);
+          } else {
+            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          }
+        }
+        this.act.interpretar(subEntrono); 
+      }
+    } else if (this.tip =="IGUAL" && this.actTipo == "INC"){
+      for (let i = o;i==k;i++){
+        
+        for (const nodo of this.cuerpo || []) {
+          const instruccion = convertirNodo(nodo);
+          if (instruccion) {
+            instruccion.interpretar(subEntrono);
+          } else {
+            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          }
+        }
+        this.act.interpretar(subEntrono); 
+      }
+    } else if (this.tip =="MENORQUE" && this.actTipo == "DEC"){
+      for (let i = o;i==k;i--){
+        
+        for (const nodo of this.cuerpo || []) {
+          const instruccion = convertirNodo(nodo);
+          if (instruccion) {
+            instruccion.interpretar(subEntrono);
+          } else {
+            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          }
+        }
+        this.act.interpretar(subEntrono); 
+      }
+    } 
+
+  }
+}
+
 
 class If2 {
   constructor(condicion, cuerpo,count) {
@@ -156,6 +373,7 @@ class If2 {
     } 
   }
 }
+
 
 class IfElse2 {
   constructor(condicion, cuerpoVerdadero,cuerpoFalso, count) {
@@ -247,4 +465,4 @@ class IfElse {
   }
 }
 
-module.exports = { Declaracion, Asignacion, Imprimir, Incremento, Decremento, Declaracion2,Imprimirln, If, IfElse,If2,IfElse2 };
+module.exports = { Declaracion, Asignacion, Imprimir, Incremento, Decremento, Declaracion2,Imprimirln, If, IfElse,If2,IfElse2,For1,For2 };

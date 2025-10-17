@@ -162,6 +162,7 @@ function procesarNodo(nodo, nodos, conexiones) {
       return nuevoNodo(`DECIMAL: ${nodo.valor}`, nodos);
     case "CHAR":
       return nuevoNodo(`CAR: ${nodo.valor}`, nodos);
+      
 
     case "AND":
     case "OR":
