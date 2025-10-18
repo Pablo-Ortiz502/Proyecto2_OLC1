@@ -4,7 +4,8 @@ const {
   Declaracion2,
   Asignacion,
   Imprimir,Imprimirln,If,IfElse,
-  Incremento,Decremento,If2,IfElse2,For1,For2
+  Incremento,Decremento,If2,IfElse2,For1,For2,While,
+  While2
 } = require("./Instrucciones");
 
 const {
@@ -24,10 +25,10 @@ let s ="";
 let ifcount =0;
 let ifElsecount =0;
 let forCount =0;
+let whCount =0;
 
 function convertirNodo(nodo) {
   if (!nodo || typeof nodo !== "object") return null;
-
   switch (nodo.tipo) {
     case "DECLARACION":
       return new Declaracion(nodo.id, nodo.tipoDato, convertirNodo(nodo.valor));
@@ -111,15 +112,19 @@ function convertirNodo(nodo) {
       
     case "FOR1":
       forCount++;
-      console.log(nodo);
       return new For1(convertirNodo(nodo.declaracion),convertirNodo(nodo.condicion) ,convertirNodo(nodo.act), 
                       nodo.cuerpo,forCount, nodo.condicion.derecha, nodo.condicion.izquierda,nodo.condicion.tipo,nodo.act);
     case "FOR2":
       forCount++;
-      console.log(nodo.act.tipo);
       return new For2(convertirNodo(nodo.asignacion),convertirNodo(nodo.condicion) ,convertirNodo(nodo.act), 
                       nodo.cuerpo,forCount, nodo.condicion.derecha, nodo.condicion.izquierda,nodo.condicion.tipo,nodo.act.tipo);                    
-   
+    case "WHILE":
+      whCount++;
+      return new While(convertirNodo(nodo.condicion),nodo.cuerpo,whCount);
+
+    case "WHILE2":
+      whCount++;
+      return new While2(nodo.condicion,nodo.cuerpo,whCount); 
 
     default:
       return null;

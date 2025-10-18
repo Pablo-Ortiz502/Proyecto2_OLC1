@@ -121,6 +121,72 @@ class If {
   }
 }
 
+class While {
+  constructor(condicion, cuerpo,count) {
+    this.condicion = condicion;
+    this.cuerpo = cuerpo;
+    this.conunt = count;
+  }
+
+  interpretar(entorno) {
+    const {interpretar,convertirNodo} = require("./interpreter");
+    const cond = this.condicion.interpretar(entorno);
+    if (typeof cond !== "boolean") {
+      entorno.errores.push({
+        tipo: "Semántico",
+        descripcion: "La condición del While no es booleana"
+      });
+      return;
+    }
+
+    while (this.condicion.interpretar(entorno)) {
+      const subEntrono = entorno.crearSubEntorno(`WHILE: ${this.conunt}`);
+      for (const nodo of this.cuerpo || []) {
+        const instruccion = convertirNodo(nodo);
+        if (instruccion) {
+          instruccion.interpretar(subEntrono);
+        } else {
+          entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+        }
+      }
+    } 
+  }
+}
+
+class While2 {
+  constructor(condicion, cuerpo,count) {
+    this.condicion = condicion;
+    this.cuerpo = cuerpo;
+    this.conunt = count;
+  }
+
+  interpretar(entorno) {
+    const {interpretar,convertirNodo} = require("./interpreter");
+    const cond = entorno.obtener(this.condicion);
+    if (typeof cond !== "boolean") {
+      entorno.errores.push({
+        tipo: "Semántico",
+        descripcion: "La condición del While no es booleana"
+      });
+      return;
+    }
+
+    while (entorno.obtener(this.condicion)) {
+      const subEntrono = entorno.crearSubEntorno(`WHILE: ${this.conunt}`);
+      for (const nodo of this.cuerpo || []) {
+        const instruccion = convertirNodo(nodo);
+        if (instruccion) {
+          instruccion.interpretar(subEntrono);
+        } else {
+          entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+        }
+      }
+    } 
+  }
+}
+
+
+
 
 class For1 {
   constructor(declaracion,condicion,act, cuerpo,count, der,izq,tip,actTipo) {
@@ -465,4 +531,4 @@ class IfElse {
   }
 }
 
-module.exports = { Declaracion, Asignacion, Imprimir, Incremento, Decremento, Declaracion2,Imprimirln, If, IfElse,If2,IfElse2,For1,For2 };
+module.exports = { Declaracion, Asignacion, Imprimir, Incremento, Decremento, Declaracion2,Imprimirln, If, IfElse,If2,IfElse2,For1,For2,While,While2 };

@@ -15,7 +15,8 @@
 "Decimal"                     return 'TIPO_DECIMAL';
 "Caracter"                    return 'TIPO_CHAR';
 "si"                          return 'IF';
-"para"                        return 'FOR';  
+"para"                        return 'FOR';
+"mientras"                    return 'WHILE';  
 "de lo contrario"             return 'ELSE';   
 ([0-9]+\.[0-9]*|\.[0-9]+)     return 'DECIMAL';
 [0-9]+                        return 'NUMERO';
@@ -65,7 +66,7 @@
 %left '^' '%'
 
 %start programa
-%token INGRESAR COMO CONVALOR TIPO_ENTERO TIPO_CADENA TIPO_CHAR TIPO_BOOL TIPO_DECIMAL  IMPRIMIR ID NUMERO CADENA CHAR DECIMAL NEWLINE TRUE FALSE ASIG IF ELSE NEWLINE FOR
+%token INGRESAR COMO CONVALOR TIPO_ENTERO TIPO_CADENA TIPO_CHAR TIPO_BOOL TIPO_DECIMAL  IMPRIMIR ID NUMERO CADENA CHAR DECIMAL NEWLINE TRUE FALSE ASIG IF ELSE NEWLINE FOR WHILE
 
 %locations
 %error-verbose
@@ -173,6 +174,23 @@ instruccion
             cuerpo: $10
         };        
     }
+    |WHILE '('expresionBol ')' '{' sentencias '}'
+    {
+        $$ = {
+            tipo: 'WHILE',
+            condicion: $3,
+            cuerpo: $6
+        };        
+    }
+    |WHILE '('ID')' '{' sentencias '}'
+    {
+        $$ = {
+            tipo: 'WHILE2',
+            condicion: $3,
+            cuerpo: $6
+        };        
+    }
+
     ;
 
 incdec
