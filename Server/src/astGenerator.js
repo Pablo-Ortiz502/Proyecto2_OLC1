@@ -45,8 +45,8 @@ function procesarNodo(nodo, nodos, conexiones) {
     case "IF_ELSE":{
       const raiz = nuevoNodo("SI", nodos);
       const condNode = procesarNodo(nodo.condicion, nodos, conexiones);
-      const jNode = "CONDICION";
-      const aNode = "ACCIONES";        
+      const jNode = nuevoNodo("CONDICION",nodos);
+      const aNode = nuevoNodo("ACCIONES",nodos);         
              
       for(const n of nodo.cuerpoVerdadero){
         const valNode = procesarNodo(n,nodos,conexiones);
@@ -69,8 +69,8 @@ function procesarNodo(nodo, nodos, conexiones) {
     case "IF_ELSE2":{
       const raiz = nuevoNodo("SI", nodos);
       const condNode = nuevoNodo(`ID: ${nodo.condicion}`, nodos);
-      const jNode = "CONDICION";
-      const aNode = "ACCIONES";            
+      const jNode = nuevoNodo("CONDICION",nodos);
+      const aNode = nuevoNodo("ACCIONES",nodos);             
       for(const n of nodo.cuerpoVerdadero){
         const valNode = procesarNodo(n,nodos,conexiones);
         conexiones.push(`${aNode} -> ${valNode}`);
@@ -91,8 +91,8 @@ function procesarNodo(nodo, nodos, conexiones) {
 
     case "IF2":{
       const raiz = nuevoNodo("SI", nodos);
-      const jNode = "CONDICION";
-      const aNode = "ACCIONES";
+      const jNode = nuevoNodo("CONDICION",nodos);
+      const aNode = nuevoNodo("ACCIONES",nodos); 
       const condNode =  nuevoNodo(`ID: ${nodo.condicion}`, nodos);
       conexiones.push(`${raiz} -> ${jNode}`);
       conexiones.push(`${raiz} -> ${aNode}`);
@@ -104,10 +104,39 @@ function procesarNodo(nodo, nodos, conexiones) {
       return raiz;
     }
 
-    case "IF":{
-      const raiz = nuevoNodo("SI", nodos);
-      const jNode = "CONDICION";
-      const aNode = "ACCIONES";            
+    case "DOWHILE2":{
+      const raiz = nuevoNodo("HACER", nodos);
+      const jNode = nuevoNodo("HASTA_QUE",nodos);
+      const aNode = nuevoNodo("ACCIONES",nodos); 
+      const condNode =  nuevoNodo(`ID: ${nodo.condicion}`, nodos);
+      conexiones.push(`${raiz} -> ${jNode}`);
+      conexiones.push(`${raiz} -> ${aNode}`);
+      conexiones.push(`${jNode} -> ${condNode}`)      
+      for(const n of nodo.cuerpo){
+        const valNode = procesarNodo(n,nodos,conexiones);
+        conexiones.push(`${aNode} -> ${valNode}`);
+      }
+      return raiz;
+    } 
+
+    case "WHILE2":{
+      const raiz = nuevoNodo("MIENTRAS", nodos);
+      const jNode = nuevoNodo("CONDICION",nodos);
+      const aNode = nuevoNodo("ACCIONES",nodos); 
+      const condNode =  nuevoNodo(`ID: ${nodo.condicion}`, nodos);
+      conexiones.push(`${raiz} -> ${jNode}`);
+      conexiones.push(`${raiz} -> ${aNode}`);
+      conexiones.push(`${jNode} -> ${condNode}`)      
+      for(const n of nodo.cuerpo){
+        const valNode = procesarNodo(n,nodos,conexiones);
+        conexiones.push(`${aNode} -> ${valNode}`);
+      }
+      return raiz;
+    }    
+    case "DOWHILE":{
+      const raiz = nuevoNodo("HACER", nodos);
+      const jNode = nuevoNodo("HASTA_QUE",nodos);
+      const aNode = nuevoNodo("ACCIONES",nodos);            
       const condNode = procesarNodo(nodo.condicion, nodos, conexiones);
       for(const n of nodo.cuerpo){
         const valNode = procesarNodo(n,nodos,conexiones);
@@ -118,6 +147,63 @@ function procesarNodo(nodo, nodos, conexiones) {
       conexiones.push(`${jNode} -> ${condNode}`) 
       return raiz;
     }
+    case "WHILE":{
+      const raiz = nuevoNodo("MIENTRAS", nodos);
+      const jNode = nuevoNodo("CONDICION",nodos);
+      const aNode = nuevoNodo("ACCIONES",nodos);            
+      const condNode = procesarNodo(nodo.condicion, nodos, conexiones);
+      for(const n of nodo.cuerpo){
+        const valNode = procesarNodo(n,nodos,conexiones);
+        conexiones.push(`${aNode} -> ${valNode}`);
+      }
+      conexiones.push(`${raiz} -> ${jNode}`);
+      conexiones.push(`${raiz} -> ${aNode}`);
+      conexiones.push(`${jNode} -> ${condNode}`) 
+      return raiz;
+    }
+
+    case "IF":{
+      const raiz = nuevoNodo("SI", nodos);
+      const jNode = nuevoNodo("CONDICION",nodos);
+      const aNode = nuevoNodo("ACCIONES",nodos);             
+      const condNode = procesarNodo(nodo.condicion, nodos, conexiones);
+      for(const n of nodo.cuerpo){
+        const valNode = procesarNodo(n,nodos,conexiones);
+        conexiones.push(`${aNode} -> ${valNode}`);
+      }
+      conexiones.push(`${raiz} -> ${jNode}`);
+      conexiones.push(`${raiz} -> ${aNode}`);
+      conexiones.push(`${jNode} -> ${condNode}`) 
+      return raiz;
+    }
+    
+    case"FOR2":
+    case"FOR1":{
+      console.log(nodo)
+      const raiz = nuevoNodo("PARA",nodos);
+      const cond = "CONDICION";
+      const ac = "ACTUALIZACION";
+      let dNode = null;
+      if (nodo.declaracion != null) dNode = procesarNodo(nodo.declaracion,nodos,conexiones);
+      else dNode = procesarNodo(nodo.asignacion,nodos,conexiones);
+      const cNode = procesarNodo(nodo.condicion,nodos,conexiones)
+      const aNode = procesarNodo(nodo.act,nodos,conexiones);
+      const kNode = "ACCIONES";
+
+      conexiones.push(`${raiz} -> ${cond}`);
+      conexiones.push(`${cond} -> ${cNode}`);
+      conexiones.push(`${raiz} -> ${dNode}`);
+      conexiones.push(`${raiz} -> ${ac}`);      
+      conexiones.push(`${ac} -> ${aNode}`);
+      conexiones.push(`${raiz} -> ${kNode}`);
+
+      for(const n of nodo.cuerpo){
+        const valNode = procesarNodo(n,nodos,conexiones);
+        conexiones.push(`${kNode} -> ${valNode}`);
+      }
+      return raiz;
+    }
+
     case "DEC":
     case"INC":
     case"NOT":{

@@ -5,7 +5,7 @@ const {
   Asignacion,
   Imprimir,Imprimirln,If,IfElse,
   Incremento,Decremento,If2,IfElse2,For1,For2,While,
-  While2
+  While2,DoWhile,DoWhile2
 } = require("./Instrucciones");
 
 const {
@@ -26,6 +26,7 @@ let ifcount =0;
 let ifElsecount =0;
 let forCount =0;
 let whCount =0;
+let DwhCount =0;
 
 function convertirNodo(nodo) {
   if (!nodo || typeof nodo !== "object") return null;
@@ -124,7 +125,16 @@ function convertirNodo(nodo) {
 
     case "WHILE2":
       whCount++;
-      return new While2(nodo.condicion,nodo.cuerpo,whCount); 
+      return new While2(nodo.condicion,nodo.cuerpo,whCount);
+
+
+    case "DOWHILE":
+      whCount++;
+      return new DoWhile(convertirNodo(nodo.condicion),nodo.cuerpo,DwhCount);
+
+    case "DOWHILE2":
+      whCount++;
+      return new DoWhile2(nodo.condicion,nodo.cuerpo,DwhCount);        
 
     default:
       return null;
@@ -135,6 +145,8 @@ function interpretar(nodosAST) {
   ifcount =0;
   ifElsecount =0;
   forCount =0;
+  whCount =0;
+  DwhCount = 0;
   const entorno = new Entorno();
 
   for (const nodo of nodosAST || []) {

@@ -121,6 +121,73 @@ class If {
   }
 }
 
+class DoWhile {
+  constructor(condicion, cuerpo,count) {
+    this.condicion = condicion;
+    this.cuerpo = cuerpo;
+    this.conunt = count;
+  }
+
+  interpretar(entorno) {
+    const {interpretar,convertirNodo} = require("./interpreter");
+    const cond = this.condicion.interpretar(entorno);
+    if (typeof cond !== "boolean") {
+      entorno.errores.push({
+        tipo: "Semántico",
+        descripcion: "La condición del While no es booleana"
+      });
+      return;
+    }
+
+    do{
+      const subEntrono = entorno.crearSubEntorno(`DOWHILE: ${this.conunt}`);
+      for (const nodo of this.cuerpo || []) {
+        const instruccion = convertirNodo(nodo);
+        if (instruccion) {
+          instruccion.interpretar(subEntrono);
+        } else {
+          entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+        }
+      }
+    }while (!this.condicion.interpretar(entorno));
+  }
+}
+
+class DoWhile2 {
+  constructor(condicion, cuerpo,count) {
+    this.condicion = condicion;
+    this.cuerpo = cuerpo;
+    this.conunt = count;
+  }
+
+  interpretar(entorno) {
+    const {interpretar,convertirNodo} = require("./interpreter");
+    const cond = entorno.obtener(this.condicion);
+    if (typeof cond !== "boolean") {
+      entorno.errores.push({
+        tipo: "Semántico",
+        descripcion: "La condición del While no es booleana"
+      });
+      return;
+    }
+
+     do{
+      const subEntrono = entorno.crearSubEntorno(`DOWHILE: ${this.conunt}`);
+      for (const nodo of this.cuerpo || []) {
+        const instruccion = convertirNodo(nodo);
+        if (instruccion) {
+          instruccion.interpretar(subEntrono);
+        } else {
+          entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+        }
+      }
+    }while (!entorno.obtener(this.condicion)); 
+  }
+}
+
+
+
+
 class While {
   constructor(condicion, cuerpo,count) {
     this.condicion = condicion;
@@ -240,7 +307,6 @@ class For1 {
         this.act.interpretar(subEntrono); 
       }
     } else if (this.tip =="MENORIGUAL" && this.actTipo == "INC"){
-      console.log(this.ini);
       for (let i = o;i<=k;i++){
         for (const nodo of this.cuerpo || []) {
           const instruccion = convertirNodo(nodo);
@@ -531,4 +597,4 @@ class IfElse {
   }
 }
 
-module.exports = { Declaracion, Asignacion, Imprimir, Incremento, Decremento, Declaracion2,Imprimirln, If, IfElse,If2,IfElse2,For1,For2,While,While2 };
+module.exports = { Declaracion, Asignacion, Imprimir, Incremento, Decremento, Declaracion2,Imprimirln, If, IfElse,If2,IfElse2,For1,For2,While,While2,DoWhile,DoWhile2 };

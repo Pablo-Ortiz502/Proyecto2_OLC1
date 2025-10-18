@@ -172,7 +172,7 @@ class Igual {
     let d = this.der.interpretar(entorno);
     let i = this.izq.interpretar(entorno);
 
-    return i == d;
+    return i === d;
   }
 }
 

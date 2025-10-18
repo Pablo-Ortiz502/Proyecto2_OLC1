@@ -16,7 +16,9 @@
 "Caracter"                    return 'TIPO_CHAR';
 "si"                          return 'IF';
 "para"                        return 'FOR';
-"mientras"                    return 'WHILE';  
+"mientras"                    return 'WHILE';
+"hacer"                       return 'DO';
+"hasta que"                   return 'DOWHILE';     
 "de lo contrario"             return 'ELSE';   
 ([0-9]+\.[0-9]*|\.[0-9]+)     return 'DECIMAL';
 [0-9]+                        return 'NUMERO';
@@ -66,7 +68,7 @@
 %left '^' '%'
 
 %start programa
-%token INGRESAR COMO CONVALOR TIPO_ENTERO TIPO_CADENA TIPO_CHAR TIPO_BOOL TIPO_DECIMAL  IMPRIMIR ID NUMERO CADENA CHAR DECIMAL NEWLINE TRUE FALSE ASIG IF ELSE NEWLINE FOR WHILE
+%token INGRESAR COMO CONVALOR TIPO_ENTERO TIPO_CADENA TIPO_CHAR TIPO_BOOL TIPO_DECIMAL  IMPRIMIR ID NUMERO CADENA CHAR DECIMAL NEWLINE TRUE FALSE ASIG IF ELSE NEWLINE FOR WHILE DO DOWHILE
 
 %locations
 %error-verbose
@@ -190,6 +192,23 @@ instruccion
             cuerpo: $6
         };        
     }
+    |DO '{' sentencias '}' DOWHILE '(' expresionBol ')'
+    {
+        $$ = {
+            tipo: 'DOWHILE',
+            condicion: $7,
+            cuerpo: $3
+        };        
+    }
+    |DO '{' sentencias '}' DOWHILE '(' ID ')'
+    {
+        $$ = {
+            tipo: 'DOWHILE2',
+            condicion: $7,
+            cuerpo: $3
+        };        
+    }
+
 
     ;
 
