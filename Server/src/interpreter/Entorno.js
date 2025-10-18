@@ -15,8 +15,9 @@ class Entorno {
   }
 
   declarar(id, tipo, valor) {
-    this.variables.set(id, { tipo, valor, entorno: this.nombre });
+    if (valor && tipo && id) this.variables.set(id, { tipo, valor, entorno: this.nombre });
   }
+    
 
   obtener(id) {
     if (this.variables.has(id)) return this.variables.get(id).valor;

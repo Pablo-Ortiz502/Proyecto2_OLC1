@@ -37,7 +37,7 @@ class Exp {
     const l = this.izq.interpretar(entorno);
     const r = this.der.interpretar(entorno);
     if(typeof l != "number" || typeof r != "number"){
-      { entorno.errores.push({ tipo: "Semántico", descripcion: "No se admite la Potencia entre no numericos" }); return;} 
+      { entorno.errores.push({ tipo: "Semántico", descripcion: "No se admite la Potencia entre no numericos" }); return null;} 
     }
     return l**r;
   }
@@ -49,7 +49,7 @@ class Mod {
     const l = this.izq.interpretar(entorno);
     const r = this.der.interpretar(entorno);
     if(typeof l != "number" || typeof r != "number"){
-      { entorno.errores.push({ tipo: "Semántico", descripcion: "No se admite el modulo entre no numericos" }); return;} 
+      { entorno.errores.push({ tipo: "Semántico", descripcion: "No se admite el modulo entre no numericos" }); return null;} 
     }
     return l%r;
   }
@@ -60,12 +60,12 @@ class Suma {
   interpretar(entorno) {
     const l = this.izq.interpretar(entorno);
     const r = this.der.interpretar(entorno);
-    if (r == null) {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha declarado la variable ${this.der.nombre}`}); return;}
-    if (l == null) {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha declarado la variable ${this.izq.nombre}`}); return;}
+    if (r == null) {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha declarado la variable ${this.der.nombre}`}); return null;}
+    if (l == null) {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha declarado la variable ${this.izq.nombre}`}); return null;}
     if (typeof l === "string" || typeof r === "string" && (l.length != 1 || r.length != 1)) {return String(l)+String(r)}
-    else if (typeof l === "boolean" && typeof r == "boolean"){ entorno.errores.push({ tipo: "Semántico", descripcion: "No se admite la suma entre booleanos" }); return;}
-    else if (typeof l === "string" && typeof r == "boolean" ) {entorno.errores.push({ tipo: "Semántico", descripcion: "No se admite la suma entre char y booleano" }); return;}
-    else if (typeof l === "boolean" && typeof r == "string" ) {entorno.errores.push({ tipo: "Semántico", descripcion: "No se admite la suma entre char y booleano" }); return;}
+    else if (typeof l === "boolean" && typeof r == "boolean"){ entorno.errores.push({ tipo: "Semántico", descripcion: "No se admite la suma entre booleanos" }); return null;}
+    else if (typeof l === "string" && typeof r == "boolean" ) {entorno.errores.push({ tipo: "Semántico", descripcion: "No se admite la suma entre char y booleano" }); return null;}
+    else if (typeof l === "boolean" && typeof r == "string" ) {entorno.errores.push({ tipo: "Semántico", descripcion: "No se admite la suma entre char y booleano" }); return null;}
     return l + r;
   }
 }
@@ -121,17 +121,65 @@ class MenorIgual {
   }
 }
 
+
+class Casteo {
+  constructor( der, cast) { this.der = der; this.cast = cast; }
+  interpretar(entorno) {
+    const {interpretar,convertirNodo} = require("./interpreter");
+    console.log(this.der);
+    console.log(this.cast);    
+    let d = convertirNodo(this.der).interpretar(entorno);
+    
+   if (this.der.tipo != "BOOL" && this.der.tipo != "CADENA"){
+      switch(this.cast){
+        case "Entero":{ // pasar a
+          switch(this.der.tipo){ // llega
+            case "DECIMAL": return  parseInt(d);
+            case "CHAR": return   d.charCodeAt(d);
+            default:{ entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha podido realizar el casteo Tipos no validos`}); return null;}
+          }    
+        }
+        case "Caracter":{
+          if (this.der.tipo == "NUMERO"){
+            n = String.fromCharCode(d);
+            if (isNaN(n)){entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha podido realizar el casteo Tipos no validos`}); return null;} 
+            else return n
+          }else {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha podido realizar el casteo Tipos no validos`}); return null;} 
+        }
+        case "Cadena":{ //pasar a
+          switch(this.der.tipo){ // llega
+            case "NUMERO": return  String(d);
+            case "DECIMAL": return   String(d);
+            default: {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha podido realizar el casteo Tipos no validos`}); return null;}
+          }   
+        }
+        case "Decimal":{
+          switch(this.der.tipo){ // llega
+            case "NUMERO": return  parseFloat(d);
+            case "CHAR": return   parseFloat(d.charCodeAt(d));
+            default: {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha podido realizar el casteo Tipos no validos`}); return null;}
+          }           
+        }
+        default: {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha podido realizar el casteo Tipos no validos`}); return null;}
+      }
+   }else{entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha podido realizar el casteo Tipos no validos`}); return null;}
+
+  }
+}
+
+
+
 class Not {
   constructor(der) { this.der = der; }
   interpretar(entorno) {
     const b = entorno.obtener(this.der);
     if (b == null) {
       entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha declarado la variable ${der}`});
-      return;
+      return null;
     }
     if (typeof b != "boolean"){
       entorno.errores.push({ tipo: "Semántico", descripcion: `No se puede aplicar NOT a no booleanos`});
-      return;
+      return null;
     }    
     return !b;
   }
@@ -144,7 +192,7 @@ class And {
     const b = this.der.interpretar(entorno);
     if (typeof a != "boolean" || typeof b != "boolean") {
       entorno.errores.push({ tipo: "Semántico", descripcion: "Solo se puede operar AND con booleanos" });
-      return;
+      return null;
     }
     return a && b;
   }
@@ -158,7 +206,7 @@ class Or {
 
     if (typeof a != "boolean" || typeof b != "boolean") {
       entorno.errores.push({ tipo: "Semántico", descripcion: "Solo se puede operar OR con booleanos" });
-      return;
+      return null;
     }
     return a || b;
   }
@@ -202,7 +250,7 @@ class Division {
   interpretar(entorno) {
     const a = this.izq.interpretar(entorno);
     const b = this.der.interpretar(entorno);     
-    if (b === 0) {entorno.errores.push({ tipo: "Semántico", descripcion: "División por cero" }); return;}
+    if (b === 0) {entorno.errores.push({ tipo: "Semántico", descripcion: "División por cero" }); return null;}
     return a / b;
   }
 }
@@ -220,5 +268,5 @@ module.exports = {
   BOOL,Mayor,Menor,
   Igual,NoIgual,Decimal,
   Exp,Mod,Caracter,Not,MayorIgual,MenorIgual,
-  And,Or
+  And,Or,Casteo
 };

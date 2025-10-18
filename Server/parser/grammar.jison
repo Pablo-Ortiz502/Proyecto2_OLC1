@@ -63,9 +63,11 @@
 %left '!' 
 %left '<' '>'
 %left '==' '!=' '<=' '>='
+%left '(' ')'
 %left '+' '-'
 %left '*' '/'
 %left '^' '%'
+
 
 %start programa
 %token INGRESAR COMO CONVALOR TIPO_ENTERO TIPO_CADENA TIPO_CHAR TIPO_BOOL TIPO_DECIMAL  IMPRIMIR ID NUMERO CADENA CHAR DECIMAL NEWLINE TRUE FALSE ASIG IF ELSE NEWLINE FOR WHILE DO DOWHILE
@@ -276,7 +278,9 @@ expresion
     | expresion '^' expresion 
         { $$ = { tipo: 'POTENCIA', izquierda: $1, derecha: $3 }; }
     | expresion '%' expresion 
-        { $$ = { tipo: 'MODULO', izquierda: $1, derecha: $3 }; }                
+        { $$ = { tipo: 'MODULO', izquierda: $1, derecha: $3 }; }
+    | '(' tipoDato ')' expresion
+        { $$ = { tipo: 'CASTEO', derecha: $4, cast: $2}; }                    
     | expresionBol 
         { $$ = $1;}    
     | variable 
@@ -284,7 +288,13 @@ expresion
     | incdec    
     ;
 
-
+tipoDato
+:TIPO_BOOL
+|TIPO_CADENA
+|TIPO_CHAR
+|TIPO_ENTERO
+|TIPO_DECIMAL
+;
 
 
 

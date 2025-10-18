@@ -18,7 +18,7 @@ const {
   Division,
   BOOL,Mayor,Menor,Igual,
   NoIgual, Decimal,Exp,Mod,Caracter,Not,
-  MayorIgual,MenorIgual,And,Or
+  MayorIgual,MenorIgual,And,Or,Casteo
 } = require("./Expresiones");
 
 let s ="";
@@ -35,7 +35,7 @@ function convertirNodo(nodo) {
       return new Declaracion(nodo.id, nodo.tipoDato, convertirNodo(nodo.valor));
     case "DECLARACION2":
       return new Declaracion2(nodo.id, nodo.tipoDato, nodo.valor);      
-    case "ASIGNACION":
+    case "ASIGNACION":      
       return new Asignacion(nodo.id, convertirNodo(nodo.valor));
     case "IMPRIMIR":
       return new Imprimir(convertirNodo(nodo.valor));
@@ -134,7 +134,10 @@ function convertirNodo(nodo) {
 
     case "DOWHILE2":
       whCount++;
-      return new DoWhile2(nodo.condicion,nodo.cuerpo,DwhCount);        
+      return new DoWhile2(nodo.condicion,nodo.cuerpo,DwhCount);
+    case "CASTEO":
+      return new Casteo(nodo.derecha,nodo.cast)
+      
 
     default:
       return null;

@@ -179,7 +179,6 @@ function procesarNodo(nodo, nodos, conexiones) {
     
     case"FOR2":
     case"FOR1":{
-      console.log(nodo)
       const raiz = nuevoNodo("PARA",nodos);
       const cond = "CONDICION";
       const ac = "ACTUALIZACION";
@@ -233,7 +232,17 @@ function procesarNodo(nodo, nodos, conexiones) {
       const valNode = procesarNodo(nodo.valor, nodos, conexiones);
       conexiones.push(`${raiz} -> ${valNode}`);
       return raiz;
-    }    
+    }
+    
+    case "CASTEO":{
+      const raiz = nuevoNodo("CASTEO", nodos);
+      const nNode = nuevoNodo(nodo.cast,nodos);
+      const dNode = procesarNodo(nodo.derecha,nodos,conexiones);
+
+      conexiones.push(`${raiz} -> ${nNode}`);
+      conexiones.push(`${raiz} -> ${dNode}`);
+      return raiz;      
+    }
 
     case "NUMERO":
       return nuevoNodo(`NUM: ${nodo.valor}`, nodos);

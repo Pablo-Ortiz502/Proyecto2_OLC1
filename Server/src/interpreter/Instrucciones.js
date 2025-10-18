@@ -60,12 +60,12 @@ class Incremento {
   interpretar(entorno) {
     if (entorno.obtener(this.id) == null) {
       entorno.errores.push({ tipo:"Semántico", descripcion:`No se ha declarado la variable (${this.id})` });
-      return;
+      return null;
     }
     const valorActual = entorno.obtener(this.id);
     if (typeof valorActual !== "number") {
       entorno.errores.push({ tipo:"Semántico", descripcion:`No se puede aplicar '++' a una variable no numérica (${this.id})` });
-      return;
+      return null;
     }
     entorno.asignar(this.id, valorActual + 1);
     return valorActual + 1;
@@ -77,12 +77,12 @@ class Decremento {
   interpretar(entorno) {
     if (entorno.obtener(this.id) == null) {
       entorno.errores.push({ tipo:"Semántico", descripcion:`No se ha declarado la variable (${this.id})` });
-      return;
+      return null;
     }    
     const valorActual = entorno.obtener(this.id);
     if (typeof valorActual !== "number") {
       entorno.errores.push({ tipo:"Semántico", descripcion:`No se puede aplicar '--' a una variable no numérica (${this.id})` });
-      return;
+      return null;
     }
     entorno.asignar(this.id, valorActual - 1);
     return valorActual - 1;
@@ -104,7 +104,7 @@ class If {
         tipo: "Semántico",
         descripcion: "La condición del if no es booleana"
       });
-      return;
+      return null;
     }
 
     if (cond) {
@@ -115,6 +115,7 @@ class If {
           instruccion.interpretar(subEntrono);
         } else {
           entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          return null;
         }
       }
     } 
@@ -147,6 +148,7 @@ class DoWhile {
           instruccion.interpretar(subEntrono);
         } else {
           entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          return null;
         }
       }
     }while (!this.condicion.interpretar(entorno));
@@ -179,6 +181,7 @@ class DoWhile2 {
           instruccion.interpretar(subEntrono);
         } else {
           entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          return null;
         }
       }
     }while (!entorno.obtener(this.condicion)); 
@@ -199,11 +202,8 @@ class While {
     const {interpretar,convertirNodo} = require("./interpreter");
     const cond = this.condicion.interpretar(entorno);
     if (typeof cond !== "boolean") {
-      entorno.errores.push({
-        tipo: "Semántico",
-        descripcion: "La condición del While no es booleana"
-      });
-      return;
+      entorno.errores.push({ tipo: "Semántico", descripcion: "La condición del While no es booleana" });
+      return null;
     }
 
     while (this.condicion.interpretar(entorno)) {
@@ -214,6 +214,7 @@ class While {
           instruccion.interpretar(subEntrono);
         } else {
           entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          return null;
         }
       }
     } 
@@ -231,11 +232,8 @@ class While2 {
     const {interpretar,convertirNodo} = require("./interpreter");
     const cond = entorno.obtener(this.condicion);
     if (typeof cond !== "boolean") {
-      entorno.errores.push({
-        tipo: "Semántico",
-        descripcion: "La condición del While no es booleana"
-      });
-      return;
+      entorno.errores.push({ tipo: "Semántico", descripcion: "La condición del While no es booleana"});
+      return null;
     }
 
     while (entorno.obtener(this.condicion)) {
@@ -246,6 +244,7 @@ class While2 {
           instruccion.interpretar(subEntrono);
         } else {
           entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          return null;
         }
       }
     } 
@@ -276,8 +275,8 @@ class For1 {
     let o = convertirNodo(this.izq).interpretar(subEntrono);
     let k = convertirNodo(this.der).interpretar(subEntrono);
 
-    if (k == null) {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha declarado la variable ${this.der.nombre} en  [${entorno.nombre}]`}); return;}
-    if (o == null) {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha declarado la variable ${this.izq.nombre} en  [${entorno.nombre}]`}); return;}
+    if (k == null) {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha declarado la variable ${this.der.nombre} en  [${entorno.nombre}]`}); return null;}
+    if (o == null) {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha declarado la variable ${this.izq.nombre} en  [${entorno.nombre}]`}); return null;}
 
     if (this.tip =="MENORQUE" && this.actTipo == "INC"){
       for (let i = o;i<k;i++){
@@ -288,6 +287,7 @@ class For1 {
             instruccion.interpretar(subEntrono); 
           } else {
             entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+            return null;
           }
         }
         this.act.interpretar(subEntrono); 
@@ -302,6 +302,7 @@ class For1 {
             instruccion.interpretar(subEntrono);
           } else {
             entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+            return null;
           }
         }
         this.act.interpretar(subEntrono); 
@@ -314,6 +315,7 @@ class For1 {
             instruccion.interpretar(subEntrono);
           } else {
             entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+            return null;
           }
         }
         this.act.interpretar(subEntrono); 
@@ -326,6 +328,7 @@ class For1 {
             instruccion.interpretar(subEntrono);
           } else {
             entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+            return null;
           }
         }
         this.act.interpretar(subEntrono); 
@@ -339,6 +342,7 @@ class For1 {
             instruccion.interpretar(subEntrono);
           } else {
             entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+            return null;
           }
         }
         this.act.interpretar(subEntrono); 
@@ -352,11 +356,12 @@ class For1 {
             instruccion.interpretar(subEntrono);
           } else {
             entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+            return null;
           }
         }
         this.act.interpretar(subEntrono); 
       }
-    } 
+    } else return null;
 
   }
 }
@@ -382,8 +387,8 @@ class For2 {
     this.condicion.interpretar(subEntrono);
     let o = convertirNodo(this.izq).interpretar(subEntrono);
     let k = convertirNodo(this.der).interpretar(subEntrono);
-    if (k == null) {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha declarado la variable ${this.der.nombre} en  [${entorno.nombre}]`}); return;}
-    if (o == null) {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha declarado la variable ${this.izq.nombre} en  [${entorno.nombre}]`}); return;}
+    if (k == null) {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha declarado la variable ${this.der.nombre} en  [${entorno.nombre}]`}); return null;}
+    if (o == null) {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha declarado la variable ${this.izq.nombre} en  [${entorno.nombre}]`}); return null;}
 
     if (this.tip =="MENORQUE" && this.actTipo == "INC"){
       for (let i = o;i<k;i++){
@@ -393,7 +398,7 @@ class For2 {
           if (instruccion) {
             instruccion.interpretar(subEntrono);
           } else {
-            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" }); return null;
           }
         }
         this.act.interpretar(subEntrono); 
@@ -407,7 +412,7 @@ class For2 {
           if (instruccion) {
             instruccion.interpretar(subEntrono);
           } else {
-            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" }); return null;
           }
         }
         this.act.interpretar(subEntrono); 
@@ -420,7 +425,7 @@ class For2 {
           if (instruccion) {
             instruccion.interpretar(subEntrono);
           } else {
-            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" }); return null;
           }
         }
         this.act.interpretar(subEntrono); 
@@ -433,7 +438,7 @@ class For2 {
           if (instruccion) {
             instruccion.interpretar(subEntrono);
           } else {
-            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" }); return null;
           }
         }
         this.act.interpretar(subEntrono); 
@@ -446,7 +451,7 @@ class For2 {
           if (instruccion) {
             instruccion.interpretar(subEntrono);
           } else {
-            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" }); return null;
           }
         }
         this.act.interpretar(subEntrono); 
@@ -459,7 +464,7 @@ class For2 {
           if (instruccion) {
             instruccion.interpretar(subEntrono);
           } else {
-            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+            entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" }); return null;
           }
         }
         this.act.interpretar(subEntrono); 
@@ -482,14 +487,14 @@ class If2 {
     const cond = entorno.obtener(this.condicion);
     if (cond == null){
       entorno.errores.push({ tipo: "Semantico", descripcion: `Variable ${this.condicion} no declarada` });
-      return;
+      return null;
     }
     if (typeof cond !== "boolean") {
       entorno.errores.push({
         tipo: "Semántico",
         descripcion: "La condición del if no es booleana"
       });
-      return;
+      return null;
     }
 
     if (cond) {
@@ -499,7 +504,7 @@ class If2 {
         if (instruccion) {
           instruccion.interpretar(subEntrono);
         } else {
-          entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" }); return null;
         }
       }
     } 
@@ -522,14 +527,11 @@ class IfElse2 {
     const subEntrono = entorno.crearSubEntorno(`SI_DE LO CONTRARIO: ${this.count}`);
     if (cond == null){
       entorno.errores.push({ tipo: "Semantico", descripcion: `Variable ${this.condicion} no declarada` });
-      return;
+      return null;
     }
     if (typeof cond !== "boolean") {
-      entorno.errores.push({
-        tipo: "Semántico",
-        descripcion: "La condición del if no es booleana"
-      });
-      return;
+      entorno.errores.push({tipo: "Semántico",descripcion: "La condición del if no es booleana" });
+      return null;
     }
 
     if (cond) {
@@ -538,7 +540,7 @@ class IfElse2 {
         if (instruccion) {
           instruccion.interpretar(subEntrono);
         } else {
-          entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" }); return null;
         }
       }
     }else{
@@ -547,7 +549,7 @@ class IfElse2 {
         if (instruccion) {
           instruccion.interpretar(subEntrono);
         } else {
-          entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" }); return null;
         }
       }
     } 
@@ -568,11 +570,8 @@ class IfElse {
     const cond = this.condicion.interpretar(entorno);
     const subEntrono = entorno.crearSubEntorno(`SI_DE LO CONTRARIO: ${this.count}`);
     if (typeof cond !== "boolean") {
-      entorno.errores.push({
-        tipo: "Semántico",
-        descripcion: "La condición del if no es booleana"
-      });
-      return;
+      entorno.errores.push({ tipo: "Semántico", descripcion: "La condición del if no es booleana" });
+      return null;
     }
 
     if (cond) {
@@ -581,7 +580,7 @@ class IfElse {
         if (instruccion) {
           instruccion.interpretar(subEntrono);
         } else {
-          entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" }); return null;
         }
       }
     }else{
@@ -590,7 +589,7 @@ class IfElse {
         if (instruccion) {
           instruccion.interpretar(subEntrono);
         } else {
-          entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" }); return null;
         }
       }
     } 
