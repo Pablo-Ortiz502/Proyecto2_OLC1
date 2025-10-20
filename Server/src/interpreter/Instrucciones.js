@@ -63,7 +63,6 @@ class Ejecutar {
         const {interpretar,convertirNodo} = require("./interpreter");
 
         for (const nodo of proced || []) {
-        console.log(nodo);
         const instruccion = convertirNodo(nodo);
 
 

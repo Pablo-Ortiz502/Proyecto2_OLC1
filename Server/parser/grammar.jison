@@ -62,17 +62,15 @@
 }
 
 /lex
-
 %left '||'
 %left  '&&'
-%left '!' 
-%left '<' '>'
-%left '==' '!=' '<=' '>='
-%left '(' ')'
+%right '!' 
+%left '==' '!=' '<=' '>=' '<' '>'
 %left '+' '-'
-%left '*' '/'
-%left '^' '%'
-
+%left '*' '/' '%' 
+%right '^'
+%right '('
+%left  ')'
 
 %start programa
 %token INGRESAR COMO CONVALOR TIPO_ENTERO TIPO_CADENA TIPO_CHAR TIPO_BOOL TIPO_DECIMAL  IMPRIMIR ID NUMERO CADENA CHAR DECIMAL NEWLINE TRUE 
