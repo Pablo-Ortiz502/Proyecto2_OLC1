@@ -19,7 +19,11 @@
 "mientras"                    return 'WHILE';
 "hacer"                       return 'DO';
 "hasta que"                   return 'DOWHILE';     
-"de lo contrario"             return 'ELSE';   
+"de lo contrario"             return 'ELSE';
+"tolower"                     return 'TOLOWER';
+"toupper"                     return 'TOUPPER';
+"procedimiento"                return 'PROCED';
+"ejecutar"                    return 'EJECUTAR';  
 ([0-9]+\.[0-9]*|\.[0-9]+)     return 'DECIMAL';
 [0-9]+                        return 'NUMERO';
 \"[^"]*\"                     return 'CADENA';
@@ -38,7 +42,8 @@
 "+"                           return '+';
 "--"                          return 'DEC';  
 "-"                           return '-';
-"=="                          return '=='; 
+"=="                          return '==';
+","                           return ',';  
 "="                           return 'ASIG';
 "*"                           return '*';
 "/"                           return '/';
@@ -70,8 +75,8 @@
 
 
 %start programa
-%token INGRESAR COMO CONVALOR TIPO_ENTERO TIPO_CADENA TIPO_CHAR TIPO_BOOL TIPO_DECIMAL  IMPRIMIR ID NUMERO CADENA CHAR DECIMAL NEWLINE TRUE FALSE ASIG IF ELSE NEWLINE FOR WHILE DO DOWHILE
-
+%token INGRESAR COMO CONVALOR TIPO_ENTERO TIPO_CADENA TIPO_CHAR TIPO_BOOL TIPO_DECIMAL  IMPRIMIR ID NUMERO CADENA CHAR DECIMAL NEWLINE TRUE 
+%token FALSE ASIG IF ELSE NEWLINE FOR WHILE DO DOWHILE TOLOWER TOUPPER PROCED, EJECUTAR
 %locations
 %error-verbose
 
@@ -113,7 +118,7 @@ separador
 
 
 instruccion
-    : declaraciones ';'
+    : declaracion';'
     | asignaciones ';'
     | IMPRIMIRLN expresion ';'
         { $$ = { tipo: 'IMPRIMIRLN', valor: $2 }; }            
@@ -210,9 +215,18 @@ instruccion
             cuerpo: $3
         };        
     }
-
-
+    |PROCED ID  '('')''{' sentencias '}'
+    {
+        $$ = {
+            tipo: 'PROCED',
+            id: $2,
+            cuerpo: $6
+        };        
+    }
+    | EJECUTAR ID '('')'';'
+        { $$ = { tipo: 'EJECUTAR', nombre: $2}; }
     ;
+    
 
 incdec
     : ID INC 
@@ -226,7 +240,8 @@ asignaciones
         { $$ = { tipo: 'ASIGNACION', id: $1, valor: $3 }; }
     ;
 
-declaraciones
+
+declaracion
     :decNum
     | TIPO_DECIMAL ID 
         { $$ = { tipo: 'DECLARACION2', id: $2, tipoDato: 'Decimal', valor: 0.0 }; } 
@@ -255,7 +270,7 @@ declaraciones
     | TIPO_BOOL ID CONVALOR expresion 
         { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Booleano', valor: $4}; }
     | TIPO_BOOL ID ASIG expresion 
-        { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Booleano', valor: $4 }; }            
+        { $$ = { tipo: 'DECLARACION', id: $2, tipoDato: 'Booleano', valor: $4 }; }                
     ;
 
 decNum
@@ -280,7 +295,11 @@ expresion
     | expresion '%' expresion 
         { $$ = { tipo: 'MODULO', izquierda: $1, derecha: $3 }; }
     | '(' tipoDato ')' expresion
-        { $$ = { tipo: 'CASTEO', derecha: $4, cast: $2}; }                    
+        { $$ = { tipo: 'CASTEO', derecha: $4, cast: $2}; }
+    | TOLOWER '(' expresion ')'
+        { $$ = { tipo: 'TOLOWER', derecha: $3}; }
+    | TOUPPER '(' expresion ')'
+        { $$ = { tipo: 'TOUPPER', derecha: $3}; }    
     | expresionBol 
         { $$ = $1;}    
     | variable 

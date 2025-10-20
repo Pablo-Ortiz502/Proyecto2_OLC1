@@ -36,7 +36,6 @@ app.get("/health",(_req,res)=>{
 
 app.post("/interpretar", (req, res) => {
   const codigo = req.body?.codigo +"\n" ?? "";
-
   try {
     const ast = parser.parse(codigo);
     const resultado = interpretar(Array.isArray(ast) ? ast : (ast ? [ast] : []));

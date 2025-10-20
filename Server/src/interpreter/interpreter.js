@@ -5,7 +5,7 @@ const {
   Asignacion,
   Imprimir,Imprimirln,If,IfElse,
   Incremento,Decremento,If2,IfElse2,For1,For2,While,
-  While2,DoWhile,DoWhile2
+  While2,DoWhile,DoWhile2,Procedimiento,Ejecutar
 } = require("./Instrucciones");
 
 const {
@@ -18,7 +18,8 @@ const {
   Division,
   BOOL,Mayor,Menor,Igual,
   NoIgual, Decimal,Exp,Mod,Caracter,Not,
-  MayorIgual,MenorIgual,And,Or,Casteo
+  MayorIgual,MenorIgual,And,Or,Casteo,ToLower,
+  ToUpper
 } = require("./Expresiones");
 
 let s ="";
@@ -35,7 +36,7 @@ function convertirNodo(nodo) {
       return new Declaracion(nodo.id, nodo.tipoDato, convertirNodo(nodo.valor));
     case "DECLARACION2":
       return new Declaracion2(nodo.id, nodo.tipoDato, nodo.valor);      
-    case "ASIGNACION":      
+    case "ASIGNACION":     
       return new Asignacion(nodo.id, convertirNodo(nodo.valor));
     case "IMPRIMIR":
       return new Imprimir(convertirNodo(nodo.valor));
@@ -47,9 +48,6 @@ function convertirNodo(nodo) {
       return new Decremento(nodo.nombre);
     case "NOT":
       return new Not(nodo.nombre);           
-
-     //faltan las demas y el if no hacpta (f)
-
 
     case "NUMERO":
       return new Numero(nodo.valor);
@@ -136,8 +134,16 @@ function convertirNodo(nodo) {
       whCount++;
       return new DoWhile2(nodo.condicion,nodo.cuerpo,DwhCount);
     case "CASTEO":
-      return new Casteo(nodo.derecha,nodo.cast)
+      return new Casteo(nodo.derecha,nodo.cast);
+    case "TOLOWER":
+      return new ToLower(convertirNodo(nodo.derecha));
+    case "TOUPPER":
+      return new ToUpper(convertirNodo(nodo.derecha));
       
+    case "PROCED":
+      return new Procedimiento(nodo.id,nodo.cuerpo);
+    case "EJECUTAR":
+      return new Ejecutar(nodo.nombre);
 
     default:
       return null;

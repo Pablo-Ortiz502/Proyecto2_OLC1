@@ -238,11 +238,18 @@ function procesarNodo(nodo, nodos, conexiones) {
       const raiz = nuevoNodo("CASTEO", nodos);
       const nNode = nuevoNodo(nodo.cast,nodos);
       const dNode = procesarNodo(nodo.derecha,nodos,conexiones);
-
       conexiones.push(`${raiz} -> ${nNode}`);
       conexiones.push(`${raiz} -> ${dNode}`);
       return raiz;      
     }
+    case "TOUPPER":
+    case "TOLOWER":
+      let raiz = null;
+      if(nodo.tipo=="TOLOWER"){raiz = nuevoNodo("TOLOWER", nodos);}
+      else{raiz = nuevoNodo("TOUPPER",nodos);}
+      const nNode = procesarNodo(nodo.derecha,nodos,conexiones);
+      conexiones.push(`${raiz} -> ${nNode}`);
+      return raiz;
 
     case "NUMERO":
       return nuevoNodo(`NUM: ${nodo.valor}`, nodos);

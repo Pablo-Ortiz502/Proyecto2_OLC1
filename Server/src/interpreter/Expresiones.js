@@ -254,6 +254,29 @@ class Division {
     return a / b;
   }
 }
+class ToLower {
+    constructor(der) { this.der = der;}
+    interpretar(entorno){
+      const a = this.der.interpretar(entorno);
+
+      if (a && typeof a == "string") {
+        return a.toLowerCase();
+      }else{entorno.errores.push({ tipo: "Semántico", descripcion: "Solo se puede aplicar toLower a una Cadena" }); return null;}
+
+    }
+  }
+  class ToUpper {
+    constructor(der) { this.der = der;}
+    interpretar(entorno){
+      const a = this.der.interpretar(entorno);
+
+      if (a && typeof a == "string") {
+        return a.toUpperCase();
+      }else{entorno.errores.push({ tipo: "Semántico", descripcion: "Solo se puede aplicar toUpper a una Cadena" }); return null;}
+
+    }
+  }
+
 
 
 
@@ -268,5 +291,5 @@ module.exports = {
   BOOL,Mayor,Menor,
   Igual,NoIgual,Decimal,
   Exp,Mod,Caracter,Not,MayorIgual,MenorIgual,
-  And,Or,Casteo
+  And,Or,Casteo,ToLower,ToUpper
 };

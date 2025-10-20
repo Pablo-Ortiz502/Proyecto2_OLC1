@@ -32,6 +32,56 @@ class Asignacion {
   }
 }
 
+class Procedimiento {
+  constructor(id, cuerpo) {
+    this.id = id;
+    this.tipoDato = "Procedimiento";
+    this.cuerpo = cuerpo;
+  }
+
+  interpretar(entorno) {
+    const val = "sentencias";
+    if (entorno.nombre == "Global"){
+      let sub = entorno.crearSubEntorno(`Procedimiento_${this.id}`);
+      entorno.declararPr(this.id, this.tipoDato, val,this.cuerpo,sub);
+    }else {entorno.errores.push({ tipo: "Semántico", descripcion: `No se puede declarar una funcion en este entorno: [${entorno.nombre}], solo en el Global`}); return null;}
+  
+  }
+} 
+
+class Ejecutar {
+  constructor(id) {
+    this.id = id;
+  }
+
+  interpretar(entorno) {
+    const proced = entorno.obtenerCuer(this.id); 
+    if (proced){
+      let subEntrono = entorno.getHijo(`Procedimiento_${this.id}`);
+      
+      if (subEntrono){
+        const {interpretar,convertirNodo} = require("./interpreter");
+
+        for (const nodo of proced || []) {
+        console.log(nodo);
+        const instruccion = convertirNodo(nodo);
+
+
+        if (instruccion) {
+          instruccion.interpretar(subEntrono);
+        } else {
+          entorno.errores.push({ tipo: "Sintáctico", descripcion: "Nodo inválido" });
+          return null;
+        }
+      }
+      } else console.log("no se encontro el sub entorno del procedimiento");
+      
+    }else {entorno.errores.push({ tipo: "Semántico", descripcion: `No se ha declarado el procedimiento [${this.id}]`}); return null;}
+  }
+} 
+
+
+
 class Imprimir {
   constructor(valor) {
     this.valor = valor;
@@ -596,4 +646,5 @@ class IfElse {
   }
 }
 
-module.exports = { Declaracion, Asignacion, Imprimir, Incremento, Decremento, Declaracion2,Imprimirln, If, IfElse,If2,IfElse2,For1,For2,While,While2,DoWhile,DoWhile2 };
+
+module.exports = { Declaracion, Asignacion, Imprimir, Incremento, Decremento, Declaracion2,Imprimirln, If, IfElse,If2,IfElse2,For1,For2,While,While2,DoWhile,DoWhile2,Procedimiento,Ejecutar };
